@@ -25,6 +25,12 @@ namespace Tickets.UsersMicroservice.Models.UnitsOfWork
         /// </summary>
         private IoTRepository<User> _usersRepository;
 
+        /// <summary>
+        ///     Repositorio de roles
+        /// </summary>
+
+        private IoTRepository<Role> _rolesRepository;
+
         #endregion
 
         #endregion
@@ -35,6 +41,11 @@ namespace Tickets.UsersMicroservice.Models.UnitsOfWork
         ///     Repositorio de usuarios
         /// </summary>
         public IoTRepository<User> UsersRepository => _usersRepository ?? (_usersRepository = new IoTRepository<User>(_context, _logger));
+
+        /// <summary>
+        ///     Repositorio de roles
+        /// </summary>
+        public IoTRepository<Role> RolesRepository => _rolesRepository ?? (_rolesRepository = new IoTRepository<Role>(_context, _logger));
 
         #endregion
 

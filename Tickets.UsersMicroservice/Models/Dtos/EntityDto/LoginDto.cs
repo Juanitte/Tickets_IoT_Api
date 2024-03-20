@@ -1,4 +1,4 @@
-﻿namespace Tickets.UsersMicroservice.Models.Dtos
+﻿namespace Tickets.UsersMicroservice.Models.Dtos.EntityDto
 {
     public class LoginDto
     {
@@ -7,8 +7,8 @@
 
         public LoginDto()
         {
-            this.Email = string.Empty;
-            this.Password = string.Empty;
+            Email = string.Empty;
+            Password = string.Empty;
         }
 
         public LoginDto(string email, string password)

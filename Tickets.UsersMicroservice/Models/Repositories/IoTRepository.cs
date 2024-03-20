@@ -66,6 +66,31 @@ namespace Tickets.UsersMicroservice.Models.Repositories
         }
 
         /// <summary>
+        ///     Comprueba si existe algún elemento que cumpla la función (por defecto es nula)
+        /// </summary>
+        /// <param name="function">Función de filtrado</param>
+        /// <returns>True si hay al menos un elemento que cumpla la función</returns>
+        public virtual async Task<bool> Any(Expression<Func<T,bool>> function = null)
+        {
+            try
+            {
+                if(function != null)
+                {
+                    return await _dbSet.AnyAsync(function);
+                }
+                else
+                {
+                    return await _dbSet.AnyAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.StackTrace);
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Obtiene la lista completa de <see cref="T"/>
         /// </summary>
         /// <returns>Listado de solo lectura de <see cref="T"/></returns>
@@ -119,6 +144,35 @@ namespace Tickets.UsersMicroservice.Models.Repositories
         }
 
         /// <summary>
+        ///     Obtiene el primer elemento que cumple el filtro de la expresión
+        /// </summary>
+        /// <param name="filter">Expresión que define el filtro a aplicar</param>
+        /// <param name="includes">Expresión que define la propiedad de navegación que se desea incluir del modelo (por defecto null)</param>
+        /// <returns><see cref="T"/></returns>
+        public virtual T GetFirst(Expression<Func<T, bool>> filter, Expression<Func<T, object>>[] includes = null)
+        {
+            try
+            {
+                if(includes == null)
+                {
+                    return _dbSet.AsNoTracking().FirstOrDefault(filter);
+                }
+                else
+                {
+                    var objects = _dbSet.AsNoTracking().Where(filter);
+                    ApplyIncludes(ref objects, includes);
+
+                    return objects.FirstOrDefault();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.StackTrace);
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Elimina un elemento del tipo <see cref="T"/> de la base de datos en base a su id
         /// </summary>
         /// <param name="id">El id a eliminar</param>
@@ -153,6 +207,32 @@ namespace Tickets.UsersMicroservice.Models.Repositories
             catch(Exception e)
             {
                 _logger.LogError(e.StackTrace);
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Métodos privados
+
+        /// <summary>
+        ///     Aplica los includes pasados como parámetro al listado de elementos pasado como referencia
+        /// </summary>
+        /// <param name="source">Listado de elementos</param>
+        /// <param name="includes">Includes a aplicar</param>
+        /// <returns>Listado de <see cref="T"/></returns>
+        private IQueryable<T> ApplyIncludes(ref IQueryable<T> source, Expression<Func<T, object>>[] includes)
+        {
+            try
+            {
+                foreach (var include in includes)
+                {
+                    source = source.Include(include);
+                }
+                return source;
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }

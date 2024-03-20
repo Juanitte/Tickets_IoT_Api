@@ -1,0 +1,23 @@
+{
+  "Routes": [
+    //AUTENTICACIÓN
+
+
+    //USUARIOS
+    {
+      "DownstreamPathTemplate": "/Users/{action}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 2003
+        }
+      ],
+      "UpstreamPathTemplate": "/Users/{action}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
+    }
+  ]
+}
