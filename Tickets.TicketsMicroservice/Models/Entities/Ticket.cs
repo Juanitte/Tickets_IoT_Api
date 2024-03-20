@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Common.Utilities;
-using Tickets.UsersMicroservice.Models.Entities;
+using Tickets.MessagesMicroservice.Models.Entities;
 
 namespace Tickets.TicketsMicroservice.Models.Entities
 {
+    [Table("Tickets")]
     public class Ticket
     {
         [Key]
@@ -18,7 +19,6 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public string Priority { get; set; }
         public string State { get; set; }
         public List<Message?> Messages { get; set; } = new List<Message?>();
-        public User? User { get; set; }
 
         public Ticket()
         {

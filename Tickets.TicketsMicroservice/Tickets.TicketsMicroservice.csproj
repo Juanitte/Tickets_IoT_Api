@@ -19,7 +19,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
-	<ProjectReference Include="..\Tickets.UsersMicroservice\Tickets.UsersMicroservice.csproj" />
+	  <ProjectReference Include="..\Tickets.MessagesMicroservice\Tickets.MessagesMicroservice.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

@@ -22,7 +22,14 @@ namespace RequestFiltering.Services
         public BlockingService(IConfiguration configuration)
         {
             var blockedIps = configuration.GetValue<string>("BlockedIps");
-            _blockedIps = blockedIps.Split(',').ToList();
+            if (blockedIps == null)
+            {
+                _blockedIps = new List<string>();
+            }
+            else
+            {
+                _blockedIps = blockedIps.Split(',').ToList();
+            }
         }
 
         public bool IsBlocked(IPAddress ipAddress) => _blockedIps.Contains(ipAddress.ToString());

@@ -69,7 +69,7 @@ namespace Tickets.UsersMicroservice.Services
         #region Miembros privados
 
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<Role> _roleManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
         private readonly SignInManager<User> _signInManager;
 
         #endregion
@@ -85,7 +85,7 @@ namespace Tickets.UsersMicroservice.Services
         /// <param name="ioTUnitOfWork"></param>
         /// <param name="logger"></param>
         public IdentitiesService(UserManager<User> userManager,
-            SignInManager<User> signInManager, RoleManager<Role> roleManager,
+            SignInManager<User> signInManager, RoleManager<IdentityRole<int>> roleManager,
             IoTUnitOfWork ioTUnitOfWork, ILogger logger) : base(ioTUnitOfWork, logger)
         {
             _userManager = userManager;
@@ -257,10 +257,9 @@ namespace Tickets.UsersMicroservice.Services
         {
             try
             {
-                var role = new Role()
+                var role = new IdentityRole<int>()
                 {
                     Name = roleDto.Name,
-                    Description = roleDto.Description
                 };
                 return await _roleManager.CreateAsync(role);
             }
@@ -453,10 +452,10 @@ namespace Tickets.UsersMicroservice.Services
         {
             try
             {
-                var roles = new List<Role>
+                var roles = new List<IdentityRole<int>>
                 {
-                    new Role() {Id = "1", Name = Literals.Role_SupportManager, Description = "Manager of the technician group", Level = 0},
-                    new Role() {Id = "2", Name = Literals.Role_SupportTechnician, Description = "Support technician", Level = 1}
+                    new IdentityRole<int>() {Id = 1, Name = Literals.Role_SupportManager},
+                    new IdentityRole<int>() {Id = 2, Name = Literals.Role_SupportTechnician}
                 };
 
                 foreach(var role in roles)
