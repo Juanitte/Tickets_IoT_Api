@@ -1,4 +1,5 @@
-﻿using Tickets.UsersMicroservice.Models.Context;
+﻿using Microsoft.AspNetCore.Identity;
+using Tickets.UsersMicroservice.Models.Context;
 using Tickets.UsersMicroservice.Models.Entities;
 using Tickets.UsersMicroservice.Models.Repositories;
 

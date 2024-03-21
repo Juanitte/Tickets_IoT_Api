@@ -1,6 +1,7 @@
 ﻿using Common.Dtos;
 using Common.Utilities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Tickets.UsersMicroservice.Models.Dtos.CreateDto;
@@ -17,14 +18,16 @@ namespace Tickets.UsersMicroservice.Controllers
         #region Miembros privados
 
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly UserManager<User> _userManager;
 
         #endregion
 
         #region Constructores
 
-        public UsersController(IServiceProvider serviceCollection,  IWebHostEnvironment hostingEnvironment) : base(serviceCollection)
+        public UsersController(IServiceProvider serviceCollection,  IWebHostEnvironment hostingEnvironment, UserManager<User> userManager) : base(serviceCollection)
         {
             _hostingEnvironment = hostingEnvironment;
+            _userManager = userManager;
         }
 
         #endregion
@@ -74,39 +77,29 @@ namespace Tickets.UsersMicroservice.Controllers
         /// <param name="user"><see cref="CreateUserDto"/> con los datos del usuario</param>
         /// <returns></returns>
         [HttpPost("create")]
-        public async Task<IActionResult> Create(CreateUserDto user)
+        public async Task<IActionResult> Create(CreateUserDto userDto)
         {
-            var response = new GenericResponseDto();
-            try
-            {
-                List<string> errors = new List<string>();
 
-                if (ModelState.IsValid)
-                {
-                    try
-                    {
-                        var result = IoTServiceUsers.Create(user).Result;
-                        if (!result.Success)
-                        {
-                            response.Error = new GenericErrorDto() { Id = ResponseCodes.DataError, Description = result.Errors.ToList().ToDisplayList() };
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        response.Error = new GenericErrorDto() { Id = ResponseCodes.DataError, Description = e.Message, Location = "Users/Create" };
-                    }
-                }
-                else
-                {
-                    response.Error = new GenericErrorDto() { Id = ResponseCodes.InvalidModel, Description = Translation_Errors.InvalidModelState, Location = "Users/Create" };
-                }
-            }
-            catch (Exception e)
+            var user = new User
             {
-                response.Error = new GenericErrorDto() { Id = ResponseCodes.OtherError, Description = e.Message, Location = "Users/Create" };
+                UserName = userDto.UserName,
+                Email = userDto.Email,
+                PhoneNumber = userDto.PhoneNumber,
+                Language = userDto.Language,
+                FullName = userDto.FullName
+            };
+
+            var createUser = await _userManager.CreateAsync(user, userDto.Password);
+
+            if (!createUser.Succeeded)
+            {
+                var errorMessage = string.Join(", ", createUser.Errors.Select(error => error.Description));
+                return BadRequest(errorMessage);
             }
 
-            return Ok(response);
+            await _userManager.AddToRoleAsync(user, "SupportTechnician");
+
+            return Ok(createUser);
         }
 
         /// <summary>
@@ -116,35 +109,28 @@ namespace Tickets.UsersMicroservice.Controllers
         /// <param name="user"><see cref="CreateUserDto"/> con los nuevos datos de usuario</param>
         /// <returns></returns>
         [HttpPut("update")]
-        public async Task<IActionResult> Update(int userId, CreateUserDto user)
+        public async Task<IActionResult> Update(int userId, CreateUserDto userDto)
         {
-            var response = new GenericResponseDto();
-            try
+            User user = await IoTServiceUsers.GetById(userId);
+            if (user == null)
             {
-                List<string> errors = new List<string>();
-
-                if (ModelState.IsValid)
-                {
-                    try
-                    {
-                        var result = await IoTServiceUsers.Update(user, userId);
-                    }
-                    catch (Exception ex)
-                    {
-                        response.Error = new GenericErrorDto() { Id = ResponseCodes.DataError, Description = ex.Message, Location = "Users/Edit" };
-                    }
-                }
-                else
-                {
-                    response.Error = new GenericErrorDto() { Id = ResponseCodes.InvalidModel, Description = Translation_Errors.InvalidModelState, Location = "Users/Edit" };
-                }
+                return BadRequest();
             }
-            catch (Exception ex)
+            user.FullName = userDto.FullName;
+            user.Email = userDto.Email;
+            user.PhoneNumber = userDto.PhoneNumber;
+            user.UserName = userDto.UserName;
+
+            var result = await IoTServiceUsers.Update(userId, user);
+
+            if (result.Succeeded)
             {
-                response.Error = new GenericErrorDto() { Id = ResponseCodes.OtherError, Description = ex.Message, Location = "Users/Edit" };
+                return Ok(result);
             }
-
-            return Ok(response);
+            else
+            {
+                return Problem("Error updating user.");
+            }
         }
 
         /// <summary>

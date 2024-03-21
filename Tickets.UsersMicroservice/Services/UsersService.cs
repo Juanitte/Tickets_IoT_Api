@@ -1,4 +1,7 @@
-﻿using System.Security.Principal;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 using Tickets.UsersMicroservice.Models.Dtos.CreateDto;
 using Tickets.UsersMicroservice.Models.Dtos.EntityDto;
 using Tickets.UsersMicroservice.Models.Dtos.FilterDto;
@@ -44,13 +47,6 @@ namespace Tickets.UsersMicroservice.Services
         Task<bool> Login(LoginDto loginDto, bool? rememberUser = false);
 
         /// <summary>
-        ///     Creación de usuario
-        /// </summary>
-        /// <param name="createUserDto"></param>
-        /// <returns></returns>
-        Task<CreateEditRemoveResponseDto> Create(CreateUserDto createUserDto);
-
-        /// <summary>
         /// Obtiene todos los usuarios
         /// </summary>
         /// <returns></returns>
@@ -90,7 +86,7 @@ namespace Tickets.UsersMicroservice.Services
         /// <param name="ioTUser"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<List<string>> Update(CreateUserDto ioTUser, int userId);
+        Task<IdentityResult> Update(int userId, User updatedUser);
 
         /// <summary>
         ///     Cambia el idioma al usuario pasado como parámetro
@@ -169,64 +165,6 @@ namespace Tickets.UsersMicroservice.Services
         }
 
         /// <summary>
-        ///     Creación de usuario
-        /// </summary>
-        /// <param name="createUserDto"></param>
-        /// <returns></returns>
-        public async Task<CreateEditRemoveResponseDto> Create(CreateUserDto createUserDto)
-        {
-            var response = new CreateEditRemoveResponseDto();
-            try
-            {
-                var errors = await ValidateUser(createUserDto);
-                if(!errors.Any())
-                {
-                    var role = await _unitOfWork.RolesRepository.Get(createUserDto.RoleId);
-
-                    if(role == null)
-                    {
-                        var errorList = new List<string> { Translation_UsersRoles.Role_no_exists };
-                        response.Errors = errorList;
-                    }
-                    else
-                    {
-                        var userDb = new User()
-                        {
-                            UserName = createUserDto.UserName,
-                            Email = createUserDto.Email,
-                            Language = createUserDto.Language,
-                            PhoneNumber = createUserDto.PhoneNumber,
-                            EmailConfirmed = true,
-                            PhoneNumberConfirmed = true,
-                            FullName = createUserDto.FullName,
-                            LockoutEnabled = false,
-                            LockoutEnd = null
-                        };
-
-                        var result = await _identitiesService.CreateUser(userDb, role.Name, createUserDto.Password);
-
-                        response.Success = result.Succeeded;
-                        response.Errors = result.Errors.Select(s => s.Description).ToList();
-                        if(response.Success)
-                        {
-                            response.Id = userDb.Id;
-                            await _unitOfWork.SaveChanges();
-                        }
-                    }
-                }
-                else
-                {
-                    response.Errors = errors;
-                }
-            }
-            catch (Exception)
-            {
-                response.Success = false;
-            }
-            return response;
-        }
-
-        /// <summary>
         ///     Crea un token para un usuario y un propósito específicos
         /// </summary>
         /// <param name="userId">El id del usuario</param>
@@ -271,7 +209,7 @@ namespace Tickets.UsersMicroservice.Services
         {
             try
             {
-                return await Task.FromResult((List<User>)_unitOfWork.UsersRepository.GetAll());
+                return await _unitOfWork.UsersRepository.GetAll().ToListAsync();
             }
             catch (Exception e)
             {
@@ -352,9 +290,7 @@ namespace Tickets.UsersMicroservice.Services
                     return new RoleDto()
                     {
                         Id = Convert.ToInt32(roleDb.Id),
-                        Name = roleDb.Name,
-                        Description = roleDb.Description,
-                        Level = roleDb.Level
+                        Name = roleDb.Name
                     };
                 }
                 return new RoleDto();
@@ -376,19 +312,27 @@ namespace Tickets.UsersMicroservice.Services
         {
             try
             {
+                List<User> usersDb = await _unitOfWork.UsersRepository.GetAll().ToListAsync();
                 User userDb = new User();
 
-                if(await _unitOfWork.UsersRepository.Any(g => g.Email.Equals(loginDto.Email)))
+                foreach(var user in usersDb)
                 {
-                    userDb = _unitOfWork.UsersRepository.GetFirst(g => g.Email == loginDto.Email);
+                    if (user.Email.Equals(loginDto.Email))
+                    {
+                        userDb = user;
+                    }
                 }
+                if (userDb != new User())
+                {
 
-                var login = await _identitiesService.Login(loginDto.Email, loginDto.Password, rememberUser.Value);
-                if(login)
-                {
-                    await _unitOfWork.SaveChanges();
+                    var login = await _identitiesService.Login(userDb, loginDto.Password, rememberUser.Value);
+                    if (login)
+                    {
+                        await _unitOfWork.SaveChanges();
+                    }
+                    return login;
                 }
-                return login;
+                return false;
             }
             catch(UserLockedException)
             {
@@ -460,60 +404,12 @@ namespace Tickets.UsersMicroservice.Services
         /// <param name="ioTUser"><see cref="CreateUserDto"/> con los nuevos datos de usuario</param>
         /// <param name="userId">El id del usuario</param>
         /// <returns>Una lista de errores</returns>
-        public async Task<List<string>> Update(CreateUserDto ioTUser, int userId)
-        {
-            var response = new List<string>();
+        public async Task<IdentityResult> Update(int userId, User updatedUser)
+        { 
 
-            try
-            {
-                var user = _unitOfWork.UsersRepository.GetFirst(g => g.Id == userId);
-                if(user != null)
-                {
-                    if(!string.IsNullOrEmpty(ioTUser.Password))
-                    {
-                        if(!await _identitiesService.UpdateUserPassword(user, ioTUser.Password))
-                        {
-                            response.Add(Translation_UsersRoles.Update_password_error);
-                        }
-
-                        if (!response.Any())
-                        {
-                            user.UserName = ioTUser.UserName;
-                            user.Email = ioTUser.Email;
-                            user.PhoneNumber = ioTUser.PhoneNumber;
-                            user.FullName = ioTUser.FullName;
-                            user.Language = ioTUser.Language;
-
-                            _unitOfWork.UsersRepository.Update(user);
-
-                            await _identitiesService.SetUserClaims(user);
-
-                            var role = _unitOfWork.RolesRepository.GetFirst(r => r.Id == ioTUser.RoleId.ToString());
-                            if (role != null)
-                            {
-                                if (!await _identitiesService.UpdateUserRole(user, role.Name))
-                                {
-                                    response.Add(Translation_UsersRoles.Update_role_error);
-                                }
-                            }
-
-                            await _unitOfWork.SaveChanges();
-                        }
-
-                    }
-                }
-                else
-                {
-                    response.Add(string.Format(Translation_UsersRoles.ID_no_found_description, userId));
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("UsersService.Update => ", userId, e);
-                throw;
-            }
-
-            return response;
+            _unitOfWork.UsersRepository.Update(updatedUser);
+            await _unitOfWork.SaveChanges();
+            return IdentityResult.Success;
         }
 
         /// <summary>

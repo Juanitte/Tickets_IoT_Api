@@ -46,12 +46,13 @@ namespace Tickets.UsersMicroservice.Controllers
                     return BadRequest(new ResponseLoginDto() { ErrorDescripcion = Translation_UsersRoles.User_locked_message });
                 }
 
-                var role = await IoTServiceUsers.GetRoleByUserId(user.Id);
+                var roles = await IoTServiceIdentity.GetUserRoles(user);
+                var role = roles.FirstOrDefault();
                 var claims = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(Literals.Claim_UserId, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(Literals.Claim_Role, role.Name),
+                    new Claim(Literals.Claim_Role, role),
                     new Claim(Literals.Claim_FullName, user.FullName),
                     new Claim(Literals.Claim_Email, user.Email),
                     new Claim(Literals.Claim_PhoneNumber, user.PhoneNumber)
@@ -83,7 +84,7 @@ namespace Tickets.UsersMicroservice.Controllers
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
                     LanguageId = user.Language,
-                    Role = role,
+                    Role = new RoleDto() { Name = role },
                     Token = tokenString
                 });
             }

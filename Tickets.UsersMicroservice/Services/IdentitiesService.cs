@@ -20,7 +20,7 @@ namespace Tickets.UsersMicroservice.Services
         /// <param name="password"></param>
         /// <param name="rememberUser"></param>
         /// <returns></returns>
-        Task<bool> Login(string email, string password, bool rememberUser);
+        Task<bool> Login(User userDb, string password, bool rememberUser);
 
         /// <summary>
         ///     Crea un nuevo usuario en el sistema
@@ -110,14 +110,14 @@ namespace Tickets.UsersMicroservice.Services
         /// <exception cref="UserLockedException"></exception>
         /// <exception cref="UserNotFoundException"></exception>
         /// <exception cref="PasswordNotValidException"></exception>
-        public async Task<bool> Login(string email, string password, bool rememberUser)
+        public async Task<bool> Login(User userDb, string password, bool rememberUser)
         {
             try
             {
-                var result = await _signInManager.PasswordSignInAsync(email, password, rememberUser, lockoutOnFailure: true);
+                var result = await _signInManager.PasswordSignInAsync(userDb, password, rememberUser, lockoutOnFailure: true);
                 if(result.Succeeded)
                 {
-                    var user = await _userManager.FindByEmailAsync(email);
+                    var user = await _userManager.FindByEmailAsync(userDb.Email);
                     var roles = await GetUserRoles(user);
 
                     await SetUserClaims(user);
@@ -130,7 +130,7 @@ namespace Tickets.UsersMicroservice.Services
                 }
                 else
                 {
-                    var user = await _userManager.FindByEmailAsync(email);
+                    var user = await _userManager.FindByEmailAsync(userDb.Email);
                     if(user == null)
                     {
                         throw new UserNotFoundException();
@@ -448,14 +448,14 @@ namespace Tickets.UsersMicroservice.Services
         ///     Genera los roles de la aplicación
         /// </summary>
         /// <returns></returns>
-        private async Task DefaultRoles()
+        public async Task DefaultRoles()
         {
             try
             {
                 var roles = new List<IdentityRole<int>>
                 {
-                    new IdentityRole<int>() {Id = 1, Name = Literals.Role_SupportManager},
-                    new IdentityRole<int>() {Id = 2, Name = Literals.Role_SupportTechnician}
+                    new IdentityRole<int>() {Name = Literals.Role_SupportManager},
+                    new IdentityRole<int>() {Name = Literals.Role_SupportTechnician}
                 };
 
                 foreach(var role in roles)
