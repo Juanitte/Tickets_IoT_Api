@@ -11,12 +11,12 @@ namespace Common.Utilities
     /// </summary>
     public enum Priorities
     {
-        NOT_SURE,
-        LOWEST,
-        LOW,
-        MEDIUM,
-        HIGH,
-        HIGHEST
+        NOT_SURE = 0,
+        LOWEST = 1,
+        LOW = 2,
+        MEDIUM = 3,
+        HIGH = 4,
+        HIGHEST = 5
     }
 
     /// <summary>
@@ -24,10 +24,10 @@ namespace Common.Utilities
     /// </summary>
     public enum States
     {
-        PENDING,
-        OPENED,
-        PAUSED,
-        FINISHED
+        PENDING = 0,
+        OPENED = 1,
+        PAUSED = 2,
+        FINISHED = 3
     }
 
     /// <summary>

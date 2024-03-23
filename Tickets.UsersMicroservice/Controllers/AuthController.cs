@@ -25,7 +25,7 @@ namespace Tickets.UsersMicroservice.Controllers
 
         #region Métodos públicos
 
-        [HttpPost("authenticate")]
+        [HttpPost("users/authenticate")]
         public async Task<IActionResult> Authenticate(LoginDto login)
         {
             try

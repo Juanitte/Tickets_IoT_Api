@@ -29,7 +29,8 @@ namespace Tickets.UsersMicroservice.Models.Context
 
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>().ToTable("users");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles").HasKey(r => r.Id);
         }
     }
 }

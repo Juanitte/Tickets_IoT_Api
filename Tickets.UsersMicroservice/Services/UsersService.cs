@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Duende.IdentityServer.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Principal;
@@ -372,7 +373,7 @@ namespace Tickets.UsersMicroservice.Services
             {
                 var response = new CreateEditRemoveResponseDto();
 
-                var user = _unitOfWork.UsersRepository.GetFirst(g => g.Id == id);
+                var user = await GetById(id);
 
                 if(user != null)
                 {

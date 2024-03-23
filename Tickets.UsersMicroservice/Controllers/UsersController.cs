@@ -38,7 +38,7 @@ namespace Tickets.UsersMicroservice.Controllers
         ///     Método que obtiene todos los usuarios
         /// </summary>
         /// <returns></returns>
-        [HttpGet("getall")]
+        [HttpGet("users/getall")]
         public async Task<JsonResult> GetAll()
         {
             try
@@ -57,7 +57,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// </summary>
         /// <param name="userId">El id del usuario a buscar</param>
         /// <returns></returns>
-        [HttpGet("getbyid/{id}")]
+        [HttpGet("users/getbyid/{id}")]
         public async Task<JsonResult> GetById(int id)
         {
             try
@@ -76,7 +76,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// </summary>
         /// <param name="user"><see cref="CreateUserDto"/> con los datos del usuario</param>
         /// <returns></returns>
-        [HttpPost("create")]
+        [HttpPost("users/create")]
         public async Task<IActionResult> Create(CreateUserDto userDto)
         {
 
@@ -108,7 +108,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// <param name="userId">El id del usuario a editar</param>
         /// <param name="user"><see cref="CreateUserDto"/> con los nuevos datos de usuario</param>
         /// <returns></returns>
-        [HttpPut("update")]
+        [HttpPut("users/update")]
         public async Task<IActionResult> Update(int userId, CreateUserDto userDto)
         {
             User user = await IoTServiceUsers.GetById(userId);
@@ -139,7 +139,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// <param name="userId">El id del usuario a modificar</param>
         /// <param name="changeLanguage"><see cref="ChangeLanguageDto"/> con los datos del idioma</param>
         /// <returns></returns>
-        [HttpPut("changelanguage")]
+        [HttpPut("users/changelanguage")]
         public async Task<IActionResult> ChangeLanguage(int userId, ChangeLanguageDto changeLanguage)
         {
             var response = new GenericResponseDto();
@@ -161,7 +161,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// </summary>
         /// <param name="id">el id del usuario a eliminar</param>
         /// <returns></returns>
-        [HttpDelete("remove/{id}")]
+        [HttpDelete("users/remove/{id}")]
         public async Task<IActionResult> Remove(int id)
         {
             var response = new GenericResponseDto();

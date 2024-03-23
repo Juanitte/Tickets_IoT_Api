@@ -1,16 +1,16 @@
 ﻿using Common.Utilities;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Claims;
 using System.Security.Principal;
-using Tickets.TicketsMicroservice.Models.Entities;
-using Tickets.UsersMicroservice.Models.Dtos;
 
 namespace Tickets.UsersMicroservice.Models.Entities
 {
     /// <summary>
     ///     Definición de los usuarios de la aplicación
     /// </summary>
+    [Table("Users")]
     public class User : IdentityUser<int>
     {
         #region Constructores
@@ -22,14 +22,12 @@ namespace Tickets.UsersMicroservice.Models.Entities
         {
             FullName = string.Empty;
             Language = Language.English;
-            this.Tickets = new List<Ticket?>();
         }
 
         #endregion
 
         public string FullName { get; set; }
         public Language Language { get; set; }
-        public List<Ticket?> Tickets { get; set; }
     }
 
     /// <summary>

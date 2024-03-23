@@ -26,7 +26,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\RequestFiltering\RequestFiltering.csproj" />
-    <ProjectReference Include="..\Tickets.TicketsMicroservice\Tickets.TicketsMicroservice.csproj" />
   </ItemGroup>
 
   <ItemGroup>

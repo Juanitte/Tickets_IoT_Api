@@ -34,7 +34,7 @@ builder.Services
             ValidateAudience = false,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SW9UOkFkbWluQDIzNDIzNDIzNAZXDRWSFd=="))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("!$Uw6e~T4%tQ@z#sXv9&gYb2^hV*pN7cF"))
         };
     });
 // Add services to the container.

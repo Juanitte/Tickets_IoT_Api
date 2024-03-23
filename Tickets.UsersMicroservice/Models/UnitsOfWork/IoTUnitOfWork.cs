@@ -33,7 +33,6 @@ namespace Tickets.UsersMicroservice.Models.UnitsOfWork
         private IoTRepository<Role> _rolesRepository;
 
         #endregion
-
         #endregion
 
         #region Propiedades públicas

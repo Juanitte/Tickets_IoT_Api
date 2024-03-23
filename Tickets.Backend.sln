@@ -17,9 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickets.UsersMicroservice",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickets.TicketsMicroservice", "Tickets.TicketsMicroservice\Tickets.TicketsMicroservice.csproj", "{FB8D745C-A7E6-4AAC-AC96-80422B7DB6CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickets.MessagesMicroservice", "Tickets.MessagesMicroservice\Tickets.MessagesMicroservice.csproj", "{6555552A-E00A-445A-A35B-0919D4233BAE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tickets.SupportApiGateway", "Tickets.ApiGateway\Tickets.SupportApiGateway.csproj", "{E5D3AB02-5E79-4D5F-84B6-02875B41BFE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tickets.SupportApiGateway", "Tickets.ApiGateway\Tickets.SupportApiGateway.csproj", "{E5D3AB02-5E79-4D5F-84B6-02875B41BFE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,10 +41,6 @@ Global
 		{FB8D745C-A7E6-4AAC-AC96-80422B7DB6CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB8D745C-A7E6-4AAC-AC96-80422B7DB6CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB8D745C-A7E6-4AAC-AC96-80422B7DB6CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6555552A-E00A-445A-A35B-0919D4233BAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6555552A-E00A-445A-A35B-0919D4233BAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6555552A-E00A-445A-A35B-0919D4233BAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6555552A-E00A-445A-A35B-0919D4233BAE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E5D3AB02-5E79-4D5F-84B6-02875B41BFE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E5D3AB02-5E79-4D5F-84B6-02875B41BFE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5D3AB02-5E79-4D5F-84B6-02875B41BFE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -60,7 +54,6 @@ Global
 		{ABEDC463-43F9-43FA-ACAD-AAC76E4FE54A} = {E24CC2D4-8983-4C90-B9CB-E50C1BC91B8A}
 		{02F26698-E25E-4A56-8D50-C258E1C6C3AD} = {D4FB1DA7-3EA6-457C-BCBF-476B44E3BA51}
 		{FB8D745C-A7E6-4AAC-AC96-80422B7DB6CF} = {D4FB1DA7-3EA6-457C-BCBF-476B44E3BA51}
-		{6555552A-E00A-445A-A35B-0919D4233BAE} = {D4FB1DA7-3EA6-457C-BCBF-476B44E3BA51}
 		{E5D3AB02-5E79-4D5F-84B6-02875B41BFE0} = {F0733017-58C2-45C8-8448-0E85EE048F39}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
