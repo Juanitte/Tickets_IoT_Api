@@ -108,7 +108,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// <param name="userId">El id del usuario a editar</param>
         /// <param name="user"><see cref="CreateUserDto"/> con los nuevos datos de usuario</param>
         /// <returns></returns>
-        [HttpPut("users/update")]
+        [HttpPut("users/update/{userId}")]
         public async Task<IActionResult> Update(int userId, CreateUserDto userDto)
         {
             User user = await IoTServiceUsers.GetById(userId);
@@ -139,7 +139,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// <param name="userId">El id del usuario a modificar</param>
         /// <param name="changeLanguage"><see cref="ChangeLanguageDto"/> con los datos del idioma</param>
         /// <returns></returns>
-        [HttpPut("users/changelanguage")]
+        [HttpPut("users/changelanguage/{userId}")]
         public async Task<IActionResult> ChangeLanguage(int userId, ChangeLanguageDto changeLanguage)
         {
             var response = new GenericResponseDto();

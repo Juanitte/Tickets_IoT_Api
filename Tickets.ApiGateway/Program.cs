@@ -21,8 +21,8 @@ builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange
 
 // Add services to the container.
 builder.Services.AddOcelot()
-    .AddDelegatingHandler<NoEncodingHandler>(true);
-
+    /*.AddDelegatingHandler<NoEncodingHandler>(true)*/;
+/*
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -36,11 +36,12 @@ builder.Services
             ClockSkew = TimeSpan.Zero,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("!$Uw6e~T4%tQ@z#sXv9&gYb2^hV*pN7cF"))
         };
-    });
+    });*/
 // Add services to the container.
 
 var app = builder.Build();
 app.UseCors("MyPolicy");
+/*
 var configuration = new OcelotPipelineConfiguration
 {
     PreAuthenticationMiddleware = async (ctx, next) =>
@@ -71,8 +72,9 @@ var configuration = new OcelotPipelineConfiguration
         await next.Invoke();
     }
 };
+*/
+app.UseOcelot(/*configuration*/).Wait();
 
-app.UseOcelot(configuration).Wait();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseAuthentication();

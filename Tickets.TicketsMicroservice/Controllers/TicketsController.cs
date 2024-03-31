@@ -112,7 +112,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a editar</param>
         /// <param name="ticket"><see cref="TicketDto"/> con los nuevos datos de la incidencia</param>
         /// <returns></returns>
-        [HttpPut("tickets/update")]
+        [HttpPut("tickets/update/{ticketId}")]
         public async Task<IActionResult> Update(int ticketId, TicketDto newTicket)
         {
             Ticket ticket = await IoTServiceTickets.Get(ticketId);
@@ -142,7 +142,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a modificar</param>
         /// <param name="priority">el valor de la prioridad</param>
         /// <returns></returns>
-        [HttpPut("tickets/change-priority")]
+        [HttpPut("tickets/change-priority/{ticketId}")]
         public async Task<IActionResult> ChangePriority(int ticketId, int priority)
         {
             
@@ -160,7 +160,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a modificar</param>
         /// <param name="state">el valor del estado</param>
         /// <returns></returns>
-        [HttpPut("tickets/change-state")]
+        [HttpPut("tickets/change-state/{ticketId}")]
         public async Task<IActionResult> ChangeState(int ticketId, int state)
         {
 
@@ -178,7 +178,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a asignar</param>
         /// <param name="userId">el id del usuario</param>
         /// <returns></returns>
-        [HttpPut("tickets/asign")]
+        [HttpPut("tickets/asign/{ticketId}-{userId}")]
         public async Task<IActionResult> AsignTicket(int ticketId, int userId)
         {
 

@@ -122,7 +122,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="messageId">El id del mensaje a editar</param>
         /// <param name="newMessage"><see cref="MessageDto"/> con los nuevos datos del mensaje</param>
         /// <returns></returns>
-        [HttpPut("messages/update")]
+        [HttpPut("messages/update/{messageId}")]
         public async Task<IActionResult> Update(int messageId, MessageDto newMessage)
         {
             var message = await IoTServiceMessages.Get(messageId);
@@ -198,7 +198,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// </summary>
         /// <param name="ticketId">el id de la incidencia</param>
         /// <returns></returns>
-        [HttpDelete("messages/deletebyticket/{ticketId}")]
+        [HttpDelete("messages/removebyticket/{ticketId}")]
         public async Task<IActionResult> RemoveByTicket(int ticketId)
         {
             var response = new GenericResponseDto();

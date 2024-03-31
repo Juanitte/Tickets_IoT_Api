@@ -7,31 +7,385 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 443
+          "Port": 7109
         }
       ],
-      "UpstreamPathTemplate": "/users/authenticate",
-      "UpstreamHttpMethod": [ "Post" ]
+      "UpstreamPathTemplate": "/gateway/users/authenticate",
+      "UpstreamHttpMethod": [ "POST" ]
     },
 
     //USUARIOS
     {
-      "DownstreamPathTemplate": "/Users/users/{action}",
-      "DownstreamScheme": "http",
+      "DownstreamPathTemplate": "/Users/users/getall",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 443
+          "Port": 7109
         }
       ],
-      "UpstreamPathTemplate": "/Users/users/{action}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "UpstreamPathTemplate": "/gateway/Users/users/getall",
+      "UpstreamHttpMethod": [ "GET" ] /*,
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
-      }
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Users/users/getbyid/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7109
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Users/users/getbyid/{id}",
+      "UpstreamHttpMethod": [ "GET" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Users/users/create",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7109
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Users/users/create",
+      "UpstreamHttpMethod": [ "POST" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Users/users/update/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7109
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Users/users/update/{userId}",
+      "UpstreamHttpMethod": [ "PUT" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Users/users/changelanguage/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7109
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Users/users/changelanguage/{userId}",
+      "UpstreamHttpMethod": [ "PUT" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Users/users/remove/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7109
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Users/users/remove/{id}",
+      "UpstreamHttpMethod": [ "DELETE" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    //INCIDENCIAS
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/getall",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/getall",
+      "UpstreamHttpMethod": [ "GET" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/getbyid/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/getbyid/{id}",
+      "UpstreamHttpMethod": [ "GET" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/create",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/create",
+      "UpstreamHttpMethod": [ "POST" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/update/{ticketId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/update/{ticketId}",
+      "UpstreamHttpMethod": [ "PUT" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/change-priority/{ticketId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/change-priority/{ticketId}",
+      "UpstreamHttpMethod": [ "PUT" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/change-state/{ticketId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/change-state/{ticketId}",
+      "UpstreamHttpMethod": [ "PUT" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/asign/{ticketId}-{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/asign/{ticketId}-{userId}",
+      "UpstreamHttpMethod": [ "PUT" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/remove/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/remove/{id}",
+      "UpstreamHttpMethod": [ "DELETE" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Tickets/tickets/getbyuser/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Tickets/tickets/getbyuser/{userId}",
+      "UpstreamHttpMethod": [ "GET" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    //MENSAJES
+    {
+      "DownstreamPathTemplate": "/Messages/messages/getall",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Messages/messages/getall",
+      "UpstreamHttpMethod": [ "GET" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Messages/messages/getbyid/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Messages/messages/getbyid/{id}",
+      "UpstreamHttpMethod": [ "GET" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Messages/messages/create",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Messages/messages/create",
+      "UpstreamHttpMethod": [ "POST" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Messages/messages/update/{messageId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Messages/messages/update/{messageId}",
+      "UpstreamHttpMethod": [ "PUT" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Messages/messages/remove/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Messages/messages/remove/{id}",
+      "UpstreamHttpMethod": [ "DELETE" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Messages/messages/removebyticket/{ticketId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Messages/messages/removebyticket/{ticketId}",
+      "UpstreamHttpMethod": [ "DELETE" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Messages/messages/getbyticket/{ticketId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Messages/messages/getbyticket/{ticketId}",
+      "UpstreamHttpMethod": [ "GET" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
+    },
+
+    {
+      "DownstreamPathTemplate": "/Messages/messages/download/{attachmentPath}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/Messages/messages/download/{attachmentPath}",
+      "UpstreamHttpMethod": [ "GET" ] /*,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }*/
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:7027"
+    "BaseUrl": "https://localhost:7131"
   }
 }
