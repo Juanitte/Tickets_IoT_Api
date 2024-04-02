@@ -142,7 +142,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a modificar</param>
         /// <param name="priority">el valor de la prioridad</param>
         /// <returns></returns>
-        [HttpPut("tickets/change-priority/{ticketId}")]
+        [HttpPut("tickets/changepriority/{ticketId}/{priority}")]
         public async Task<IActionResult> ChangePriority(int ticketId, int priority)
         {
             
@@ -160,7 +160,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a modificar</param>
         /// <param name="state">el valor del estado</param>
         /// <returns></returns>
-        [HttpPut("tickets/change-state/{ticketId}")]
+        [HttpPut("tickets/changestate/{ticketId}/{state}")]
         public async Task<IActionResult> ChangeState(int ticketId, int state)
         {
 
@@ -178,7 +178,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a asignar</param>
         /// <param name="userId">el id del usuario</param>
         /// <returns></returns>
-        [HttpPut("tickets/asign/{ticketId}-{userId}")]
+        [HttpPut("tickets/asign/{ticketId}/{userId}")]
         public async Task<IActionResult> AsignTicket(int ticketId, int userId)
         {
 

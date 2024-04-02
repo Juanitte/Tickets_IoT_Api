@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using RequestFiltering.Services;
 using Serilog;
 using System.Globalization;
@@ -26,6 +27,63 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+var securityScheme = new OpenApiSecurityScheme()
+{
+    Name = "Authorization",
+    Type = SecuritySchemeType.ApiKey,
+    Scheme = "Bearer",
+    BearerFormat = "JWT",
+    In = ParameterLocation.Header,
+    Description = "JSON Web Token based security",
+};
+
+var securityReq = new OpenApiSecurityRequirement()
+{
+    {
+        new OpenApiSecurityScheme
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id = "Bearer"
+            }
+        },
+        new string[] {}
+    }
+};
+
+var contact = new OpenApiContact()
+{
+    Name = "TicketManagement",
+    Email = "software@iotsl.es",
+    Url = new Uri("http://www.iotsl.es")
+};
+
+var license = new OpenApiLicense()
+{
+    Name = "Free License",
+    Url = new Uri("http://www.iotsl.es")
+};
+
+var info = new OpenApiInfo()
+{
+    Version = "v1",
+    Title = "Minimal API - JWT Authentication with Swagger demo",
+    Description = "Implementing JWT Authentication in Minimal API",
+    TermsOfService = new Uri("http://www.example.com"),
+    Contact = contact,
+    License = license
+};
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(o =>
+{
+    o.SwaggerDoc("v1", info);
+    o.AddSecurityDefinition("Bearer", securityScheme);
+    o.AddSecurityRequirement(securityReq);
+});
 
 ILoggerFactory loggerFactory = new LoggerFactory();
 

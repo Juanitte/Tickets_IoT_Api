@@ -232,7 +232,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("UsersService.GetByUserName =>", email, e);
+                _logger.LogError("UsersService.GetByEmail =>", email, e);
                 throw;
             }
         }

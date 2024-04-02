@@ -70,7 +70,7 @@ namespace Tickets.UsersMicroservice.Models.Dtos.ResponseDto
         ///     Rol del usuario logeado
         /// </summary>
         [JsonProperty("role")]
-        public RoleDto Role { get; set; }
+        public string Role { get; set; }
 
         /// <summary>
         ///     Identificador del idioma del usuario logeado

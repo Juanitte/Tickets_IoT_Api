@@ -26,8 +26,9 @@ namespace Tickets.UsersMicroservice.Controllers
         #region Métodos públicos
 
         [HttpPost("users/authenticate")]
-        public async Task<IActionResult> Authenticate(LoginDto login)
+        public async Task<IActionResult> Authenticate([FromBody] LoginDto login)
         {
+
             try
             {
                 var user = await IoTServiceUsers.GetByEmail(login.Email);
@@ -84,7 +85,7 @@ namespace Tickets.UsersMicroservice.Controllers
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
                     LanguageId = user.Language,
-                    Role = new RoleDto() { Name = role },
+                    Role = role,
                     Token = tokenString
                 });
             }
