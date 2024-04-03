@@ -14,9 +14,10 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime Timestamp { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public string Priority { get; set; }
         public string State { get; set; }
+        public bool IsAsigned { get; set; }
         public List<Message?> Messages { get; set; } = new List<Message?>();
 
         public Ticket()
@@ -25,9 +26,10 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Name = string.Empty;
             this.Email = string.Empty;
             this.Timestamp = DateTime.Now;
-            this.UserId = 1;
+            this.UserId = -1;
             this.Priority = Priorities.NOT_SURE.ToString();
             this.State = States.PENDING.ToString();
+            this.IsAsigned = false;
         }
         public Ticket(string title, string name, string email)
         {
@@ -35,9 +37,10 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Name = name;
             this.Email = email;
             this.Timestamp = DateTime.Now;
-            this.UserId = 1;
+            this.UserId = -1;
             this.Priority = Priorities.NOT_SURE.ToString();
             this.State = States.PENDING.ToString();
+            this.IsAsigned = false;
         }
 
         public Ticket(Message message)
@@ -46,10 +49,11 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Name = string.Empty;
             this.Email = string.Empty;
             this.Timestamp = DateTime.Now;
-            this.UserId = 1;
+            this.UserId = -1;
             this.Priority = Priorities.NOT_SURE.ToString();
             this.State = States.PENDING.ToString();
             this.Messages.Add(message);
+            this.IsAsigned = false;
         }
         public Ticket(string title, string name, string email, Message message)
         {
@@ -57,10 +61,11 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Name = name;
             this.Email = email;
             this.Timestamp = DateTime.Now;
-            this.UserId = 1;
+            this.UserId = -1;
             this.Priority = Priorities.NOT_SURE.ToString();
             this.State = States.PENDING.ToString();
             this.Messages.Add(message);
+            this.IsAsigned = false;
         }
     }
 }

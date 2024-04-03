@@ -349,7 +349,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/messages/download/{attachmentPath}",
+      "DownstreamPathTemplate": "/messages/download/{ticketId}/{attachmentPath}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -357,7 +357,7 @@
           "Port": 7027
         }
       ],
-      "UpstreamPathTemplate": "/gateway/messages/download/{attachmentPath}",
+      "UpstreamPathTemplate": "/gateway/messages/download/{ticketId}/{attachmentPath}",
       "UpstreamHttpMethod": [ "GET" ]
     }
   ],

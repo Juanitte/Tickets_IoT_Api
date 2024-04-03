@@ -82,9 +82,15 @@ namespace Tickets.TicketsMicroservice.Controllers
         {
 
             var ticket = new Ticket(createTicket.TicketDto.Title, createTicket.TicketDto.Name, createTicket.TicketDto.Email);
+            
+
+            var result = await IoTServiceTickets.Create(ticket);
+
             if (createTicket.MessageDto != null)
             {
-                var message = new Message(createTicket.MessageDto.Content, ticket.Id);
+                Console.WriteLine("Id del ticket: ", result.Id);
+                var message = new Message(createTicket.MessageDto.Content, result.Id);
+
 
                 if (!createTicket.MessageDto.Attachments.IsNullOrEmpty())
                 {
@@ -92,16 +98,17 @@ namespace Tickets.TicketsMicroservice.Controllers
                     {
                         if (attachment != null)
                         {
-                            string attachmentPath = await SaveAttachmentToFileSystem(attachment);
+                            Console.WriteLine("Id del ticket: ", result.Id);
+                            string attachmentPath = await SaveAttachmentToFileSystem(attachment, result.Id);
                             Attachment newAttachment = new Attachment(attachmentPath, message.Id);
                             message.AttachmentPaths.Add(newAttachment);
                         }
                     }
                 }
-                ticket.Messages.Add(message);
-            }
+                result.Messages.Add(message);
 
-            var result = await IoTServiceTickets.Create(ticket);
+                result = await IoTServiceTickets.Update(result.Id, result);
+            }
 
             return Ok(result);
         }
@@ -220,7 +227,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// </summary>
         /// <param name="userId">el id del usuario</param>
         /// <returns><see cref="JsonResult"/> con los datos de los tickets</returns>
-        [HttpGet("/users/getbyuser/{userId}")]
+        [HttpGet("/tickets/getbyuser/{userId}")]
         public async Task<JsonResult> GetByUser(int userId)
         {
             try
@@ -243,10 +250,16 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// </summary>
         /// <param name="attachment"><see cref="IFormFile"/> con los datos del archivo adjunto a guardar</param>
         /// <returns>la ruta del archivo guardado</returns>
-        private async Task<string> SaveAttachmentToFileSystem(IFormFile attachment)
+        private async Task<string> SaveAttachmentToFileSystem(IFormFile attachment, int ticketId)
         {
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(attachment.FileName);
-            var filePath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage", fileName);
+            string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
+            string filePath = Path.Combine(directoryPath, fileName);
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {

@@ -104,6 +104,11 @@ namespace Tickets.TicketsMicroservice.Services
                 var ticket = await _unitOfWork.TicketsRepository.Get(ticketId);
                 if (ticket != null)
                 {
+                    if (!ticket.IsAsigned)
+                    {
+                        ticket.State = States.OPENED.ToString();
+                        ticket.IsAsigned = true;
+                    }
                     ticket.UserId = userId;
                     _unitOfWork.TicketsRepository.Update(ticket);
                     await _unitOfWork.SaveChanges();
