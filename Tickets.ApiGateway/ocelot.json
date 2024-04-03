@@ -28,10 +28,10 @@
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
-      }/*,
+      },
       "RouteClaimsRequirement": {
-        "role": "SupportManager"
-      }*/
+        "Role": "SupportManager"
+      }
     },
 
     {
@@ -122,10 +122,10 @@
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
-      }/*,
+      },
       "RouteClaimsRequirement": {
         "Role": "SupportManager"
-      }*/
+      }
     },
 
     {
@@ -180,10 +180,10 @@
       "UpstreamHttpMethod": [ "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
-      }/*,
+      },
       "RouteClaimsRequirement": {
-        "role": "SupportManager"
-      }*/
+        "Role": "SupportManager"
+      }
     },
 
     {
@@ -215,10 +215,10 @@
       "UpstreamHttpMethod": [ "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
-      }/*,
+      },
       "RouteClaimsRequirement": {
-        "role": "SupportManager"
-      }*/
+        "Role": "SupportManager"
+      }
     },
 
     {
@@ -234,10 +234,10 @@
       "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
-      }/*,
+      },
       "RouteClaimsRequirement": {
-        "role": "SupportManager"
-      }*/
+        "Role": "SupportManager"
+      }
     },
 
     {

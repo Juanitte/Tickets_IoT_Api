@@ -34,7 +34,7 @@ namespace Common.Utilities
 
         public static string Claim_FullName = "FullName";
         public static string Claim_LanguageId = "LanguageId";
-        public static string Claim_Role = "RoleId";
+        public static string Claim_Role = "Role";
         public static string Claim_UserId = "UserId";
         public static string Claim_Email = "Email";
         public static string Claim_PhoneNumber = "PhoneNumber";

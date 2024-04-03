@@ -9,6 +9,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        public string Author { get; set; }
         public string Content { get; set; }
         public List<Attachment?> AttachmentPaths { get; set; } = new List<Attachment?>();
         public int TicketId { get; set; }
@@ -18,22 +19,25 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public Message()
         {
             Id = 0;
+            Author = string.Empty;
             Content = string.Empty;
             TicketId = 0;
             Ticket = null;
         }
 
-        public Message(string content, int ticketId)
+        public Message(string content, string author, int ticketId)
         {
             Id = 0;
+            Author = author;
             Content = content;
             TicketId = ticketId;
             Ticket = null;
         }
 
-        public Message(string content, List<Attachment?> attachmentPaths, int ticketId)
+        public Message(string content, string author, List<Attachment?> attachmentPaths, int ticketId)
         {
             Id = 0;
+            Author = author;
             Content = content;
             AttachmentPaths = attachmentPaths;
             TicketId = ticketId;

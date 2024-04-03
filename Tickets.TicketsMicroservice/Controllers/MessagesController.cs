@@ -85,15 +85,17 @@ namespace Tickets.TicketsMicroservice.Controllers
         [HttpPost("messages/create")]
         public async Task<IActionResult> Create([FromForm] MessageDto createMessage)
         {
+            Console.WriteLine("Content: ", createMessage.Content);
+            Console.WriteLine("Id del ticket: ", createMessage.TicketId);
 
             Message message;
             if (createMessage.Attachments.IsNullOrEmpty())
             {
-                message = new Message(createMessage.Content,createMessage.TicketId);
+                message = new Message(createMessage.Content, createMessage.Author, createMessage.TicketId);
             }
             else
             {
-                message = new Message(createMessage.Content, createMessage.TicketId);
+                message = new Message(createMessage.Content, createMessage.Author, createMessage.TicketId);
                 if (!createMessage.Attachments.IsNullOrEmpty())
                 {
                     foreach (var attachment in createMessage.Attachments)

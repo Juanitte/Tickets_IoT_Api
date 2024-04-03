@@ -89,7 +89,7 @@ namespace Tickets.TicketsMicroservice.Controllers
             if (createTicket.MessageDto != null)
             {
                 Console.WriteLine("Id del ticket: ", result.Id);
-                var message = new Message(createTicket.MessageDto.Content, result.Id);
+                var message = new Message(createTicket.MessageDto.Content, createTicket.MessageDto.Author, result.Id);
 
 
                 if (!createTicket.MessageDto.Attachments.IsNullOrEmpty())
