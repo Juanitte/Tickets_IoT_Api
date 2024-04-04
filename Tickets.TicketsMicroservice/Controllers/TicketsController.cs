@@ -130,7 +130,7 @@ namespace Tickets.TicketsMicroservice.Controllers
             ticket.Title = newTicket.Title;
             ticket.Email = newTicket.Email;
             ticket.Name = newTicket.Name;
-            ticket.HasNewMessages = true;
+            ticket.HasNewMessages = newTicket.HasNewMessages;
 
             var result = await IoTServiceTickets.Update(ticketId, ticket);
 

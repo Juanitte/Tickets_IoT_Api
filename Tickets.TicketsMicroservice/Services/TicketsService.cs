@@ -316,7 +316,7 @@ namespace Tickets.TicketsMicroservice.Services
                 ticket.State = newTicket.State;
                 ticket.UserId = newTicket.UserId;
                 ticket.IsAsigned = newTicket.IsAsigned;
-                ticket.HasNewMessages = true;
+                ticket.HasNewMessages = newTicket.HasNewMessages;
 
                 _unitOfWork.TicketsRepository.Update(ticket);
                 await _unitOfWork.SaveChanges();
