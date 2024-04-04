@@ -12,7 +12,7 @@
             this.Title = string.Empty;
             this.Name = string.Empty;
             this.Email = string.Empty;
-            this.HasNewMessages = false;
+            this.HasNewMessages = true;
         }
 
         public TicketDto(string title, string name, string email, bool hasNewMessages)

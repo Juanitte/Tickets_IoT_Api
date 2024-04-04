@@ -37,7 +37,7 @@ namespace Tickets.TicketsMicroservice.Controllers
             try
             {
                 var tickets = await IoTServiceTickets.GetAll();
-                foreach(var ticket in tickets)
+                foreach (var ticket in tickets)
                 {
                     ticket.Messages = await IoTServiceMessages.GetByTicket(ticket.Id);
                 }
@@ -82,7 +82,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         {
 
             var ticket = new Ticket(createTicket.TicketDto.Title, createTicket.TicketDto.Name, createTicket.TicketDto.Email);
-            
+
 
             var result = await IoTServiceTickets.Create(ticket);
 
@@ -120,7 +120,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticket"><see cref="TicketDto"/> con los nuevos datos de la incidencia</param>
         /// <returns></returns>
         [HttpPut("tickets/update/{ticketId}")]
-        public async Task<IActionResult> Update(int ticketId, TicketDto newTicket)
+        public async Task<IActionResult> Update(int ticketId, [FromBody] TicketDto newTicket)
         {
             Ticket ticket = await IoTServiceTickets.Get(ticketId);
             if (ticket == null)
@@ -128,8 +128,8 @@ namespace Tickets.TicketsMicroservice.Controllers
                 return BadRequest();
             }
             ticket.Title = newTicket.Title;
-            ticket.Email = newTicket.Email;
             ticket.Name = newTicket.Name;
+            ticket.Email = newTicket.Email;
             ticket.HasNewMessages = newTicket.HasNewMessages;
 
             var result = await IoTServiceTickets.Update(ticketId, ticket);

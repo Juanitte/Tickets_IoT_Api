@@ -31,7 +31,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Priority = Priorities.NOT_SURE.ToString();
             this.State = States.PENDING.ToString();
             this.IsAsigned = false;
-            this.HasNewMessages = false;
+            this.HasNewMessages = true;
         }
         public Ticket(string title, string name, string email)
         {
@@ -43,7 +43,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Priority = Priorities.NOT_SURE.ToString();
             this.State = States.PENDING.ToString();
             this.IsAsigned = false;
-            this.HasNewMessages = false;
+            this.HasNewMessages = true;
         }
 
         public Ticket(Message message)
