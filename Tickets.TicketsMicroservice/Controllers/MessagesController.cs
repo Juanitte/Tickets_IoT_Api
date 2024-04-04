@@ -115,6 +115,12 @@ namespace Tickets.TicketsMicroservice.Controllers
             }
             await IoTServiceMessages.Create(message);
 
+            Ticket ticket = await IoTServiceTickets.Get(createMessage.TicketId);
+            if (ticket != null)
+            {
+                await IoTServiceTickets.Update(createMessage.TicketId, ticket);
+            }
+
             return Ok(message);
         }
 

@@ -11,6 +11,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public int Id { get; set; }
         public string Author { get; set; }
         public string Content { get; set; }
+        public DateTime Timestamp { get; set; }
         public List<Attachment?> AttachmentPaths { get; set; } = new List<Attachment?>();
         public int TicketId { get; set; }
         [ForeignKey("TicketId")]
@@ -21,6 +22,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             Id = 0;
             Author = string.Empty;
             Content = string.Empty;
+            this.Timestamp = DateTime.Now;
             TicketId = 0;
             Ticket = null;
         }
@@ -30,6 +32,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             Id = 0;
             Author = author;
             Content = content;
+            this.Timestamp = DateTime.Now;
             TicketId = ticketId;
             Ticket = null;
         }
@@ -39,6 +42,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             Id = 0;
             Author = author;
             Content = content;
+            this.Timestamp = DateTime.Now;
             AttachmentPaths = attachmentPaths;
             TicketId = ticketId;
             Ticket = null;
