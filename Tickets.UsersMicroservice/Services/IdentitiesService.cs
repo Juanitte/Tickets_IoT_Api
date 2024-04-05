@@ -492,6 +492,7 @@ namespace Tickets.UsersMicroservice.Services
                         UserName = userName,
                         Email = "supportmanager@company.com",
                         PhoneNumber = "123456789",
+                        FullName = "Support Manager",
                         EmailConfirmed = true,
                         PhoneNumberConfirmed = true,
                         LockoutEnabled = false,

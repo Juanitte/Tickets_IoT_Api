@@ -118,6 +118,7 @@ namespace Tickets.TicketsMicroservice.Controllers
             Ticket ticket = await IoTServiceTickets.Get(createMessage.TicketId);
             if (ticket != null)
             {
+                ticket.HasNewMessages = true;
                 await IoTServiceTickets.Update(createMessage.TicketId, ticket);
             }
 

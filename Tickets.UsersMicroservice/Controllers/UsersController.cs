@@ -72,12 +72,43 @@ namespace Tickets.UsersMicroservice.Controllers
         }
 
         /// <summary>
-        ///     Método que crea un nuevo usuario
+        ///     Método que crea un nuevo usuario con rol SupportManager
         /// </summary>
         /// <param name="user"><see cref="CreateUserDto"/> con los datos del usuario</param>
         /// <returns></returns>
-        [HttpPost("users/create")]
-        public async Task<IActionResult> Create(CreateUserDto userDto)
+        [HttpPost("users/create/manager")]
+        public async Task<IActionResult> CreateManager(CreateUserDto userDto)
+        {
+
+            var user = new User
+            {
+                UserName = userDto.UserName,
+                Email = userDto.Email,
+                PhoneNumber = userDto.PhoneNumber,
+                Language = userDto.Language,
+                FullName = userDto.FullName
+            };
+
+            var createUser = await _userManager.CreateAsync(user, userDto.Password);
+
+            if (!createUser.Succeeded)
+            {
+                var errorMessage = string.Join(", ", createUser.Errors.Select(error => error.Description));
+                return BadRequest(errorMessage);
+            }
+
+            await _userManager.AddToRoleAsync(user, "SupportManager");
+
+            return Ok(createUser);
+        }
+
+        /// <summary>
+        ///     Método que crea un nuevo usuario con rol SupportTechnician
+        /// </summary>
+        /// <param name="user"><see cref="CreateUserDto"/> con los datos del usuario</param>
+        /// <returns></returns>
+        [HttpPost("users/create/technician")]
+        public async Task<IActionResult> CreateTechnician(CreateUserDto userDto)
         {
 
             var user = new User
