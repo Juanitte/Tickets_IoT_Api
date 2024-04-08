@@ -108,6 +108,8 @@ namespace Tickets.TicketsMicroservice.Controllers
                 result.Messages.Add(message);
 
                 result = await IoTServiceTickets.Update(result.Id, result);
+
+                IoTServiceTickets.SendMail(result.Email, string.Concat("http://localhost:4200/helpdesk/", result.Id));
             }
 
             return Ok(result);

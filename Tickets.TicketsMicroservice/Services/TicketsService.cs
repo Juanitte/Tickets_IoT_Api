@@ -1,10 +1,13 @@
 ﻿using Common.Utilities;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
 using Tickets.TicketsMicroservice.Models.Entities;
 using Tickets.TicketsMicroservice.Models.UnitsOfWork;
+using MailKit.Security;
+using MailKit.Net.Smtp;
+using MimeKit;
+using Tickets.TicketsMicroservice.Translations;
 
 namespace Tickets.TicketsMicroservice.Services
 {
@@ -78,6 +81,13 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="userId">el id del usuario</param>
         /// <returns>una lista con las incidencias asignadas al usuario <see cref="Ticket"/></returns>
         public Task<List<Ticket?>> GetByUser(int userId);
+
+        /// <summary>
+        ///     Envía un email
+        /// </summary>
+        /// <param name="email">el email destino</param>
+        /// <param name="link">el enlace de seguimiento</param>
+        public void SendMail(string email, string link);
     }
     public class TicketsService : BaseService , ITicketsService
     {
@@ -327,6 +337,35 @@ namespace Tickets.TicketsMicroservice.Services
             {
                 _logger.LogError("TicketsService.Update => ", e);
                 throw;
+            }
+        }
+
+        /// <summary>
+        ///     Envía un email
+        /// </summary>
+        /// <param name="email">el eamil destino</param>
+        /// <param name="link">el enlace de seguimiento</param>
+        /// <returns></returns>
+        public async void SendMail(string email, string link)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("IoT Incidencias", "noreply.iot.incidencias@gmail.com"));
+                message.To.Add(new MailboxAddress("", email));
+                message.Subject = Translation_Tickets.Email_title;
+                message.Body = new TextPart("plain") { Text = string.Concat(Translations.Translation_Tickets.Email_body, "\n", link) };
+
+                using (var client = new MailKit.Net.Smtp.SmtpClient())
+                {
+                    client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                    client.Authenticate("noreply.iot.incidencias@gmail.com", "levp dwqb qacd vhle");
+                    client.Send(message);
+                    client.Disconnect(true);
+                }
+            } catch(Exception e)
+            {
+                _logger.LogError("Send Mail => ", e);
             }
         }
 

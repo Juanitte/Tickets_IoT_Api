@@ -117,43 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Passwords_donot_match" xml:space="preserve">
-    <value>Passwords do not match</value>
+  <data name="Error_create_message" xml:space="preserve">
+    <value>Error creating message</value>
   </data>
-  <data name="Setting_image_error" xml:space="preserve">
-    <value>Error setting image</value>
+  <data name="Error_saving_attachment" xml:space="preserve">
+    <value>An error ocurred when trying to save the attachment</value>
   </data>
-  <data name="User_locked_message" xml:space="preserve">
-    <value>The user is locked</value>
+  <data name="Message_not_found" xml:space="preserve">
+    <value>Message not found</value>
   </data>
-  <data name="NotAvailable_Username" xml:space="preserve">
-    <value>The username is not available</value>
-  </data>
-  <data name="NotAvailable_Email" xml:space="preserve">
-    <value>The email is not available</value>
-  </data>
-  <data name="Update_password_error" xml:space="preserve">
-    <value>Error updating password</value>
-  </data>
-  <data name="Update_role_error" xml:space="preserve">
-    <value>Error updating role</value>
-  </data>
-  <data name="ID_no_found_description" xml:space="preserve">
-    <value>Id not found</value>
-  </data>
-  <data name="User_hasbeen_deleted" xml:space="preserve">
-    <value>The user has been deleted</value>
-  </data>
-  <data name="And" xml:space="preserve">
-    <value>And</value>
-  </data>
-  <data name="User_access_not_allowed" xml:space="preserve">
-    <value>Access not allowed</value>
-  </data>
-  <data name="Role_no_exists" xml:space="preserve">
-    <value>Role is non existing</value>
-  </data>
-  <data name="No_permission" xml:space="preserve">
-    <value>You don't have permission to create/update a user</value>
+  <data name="No_attachments" xml:space="preserve">
+    <value>The message has no attachments</value>
   </data>
 </root>

@@ -70,7 +70,7 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a .
+        ///   Busca una cadena traducida similar a Id not found.
         /// </summary>
         public static string ID_no_found_description {
             get {
@@ -106,7 +106,7 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a .
+        ///   Busca una cadena traducida similar a Passwords do not match.
         /// </summary>
         public static string Passwords_donot_match {
             get {
@@ -124,7 +124,7 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a .
+        ///   Busca una cadena traducida similar a Error setting image.
         /// </summary>
         public static string Setting_image_error {
             get {
@@ -133,7 +133,7 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a .
+        ///   Busca una cadena traducida similar a Error updating password.
         /// </summary>
         public static string Update_password_error {
             get {
@@ -142,7 +142,7 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a .
+        ///   Busca una cadena traducida similar a Error updating role.
         /// </summary>
         public static string Update_role_error {
             get {
@@ -160,7 +160,7 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a .
+        ///   Busca una cadena traducida similar a The user has been deleted.
         /// </summary>
         public static string User_hasbeen_deleted {
             get {
@@ -169,7 +169,7 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a .
+        ///   Busca una cadena traducida similar a The user is locked.
         /// </summary>
         public static string User_locked_message {
             get {
