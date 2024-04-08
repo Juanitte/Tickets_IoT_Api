@@ -19,6 +19,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public string State { get; set; }
         public bool IsAsigned { get; set; }
         public bool HasNewMessages { get; set; }
+        public int newMessagesCount { get; set; }
         public List<Message?> Messages { get; set; } = new List<Message?>();
 
         public Ticket()
@@ -32,6 +33,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.State = States.PENDING.ToString();
             this.IsAsigned = false;
             this.HasNewMessages = true;
+            this.newMessagesCount = 0;
         }
         public Ticket(string title, string name, string email)
         {
@@ -44,6 +46,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.State = States.PENDING.ToString();
             this.IsAsigned = false;
             this.HasNewMessages = true;
+            this.newMessagesCount = 0;
         }
 
         public Ticket(Message message)
@@ -58,6 +61,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Messages.Add(message);
             this.IsAsigned = false;
             this.HasNewMessages = true;
+            this.newMessagesCount = 0;
         }
         public Ticket(string title, string name, string email, Message message)
         {
@@ -71,6 +75,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Messages.Add(message);
             this.IsAsigned = false;
             this.HasNewMessages = true;
+            this.newMessagesCount = 0;
         }
     }
 }
