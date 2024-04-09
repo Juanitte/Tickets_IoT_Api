@@ -327,7 +327,7 @@ namespace Tickets.TicketsMicroservice.Services
                 ticket.UserId = newTicket.UserId;
                 ticket.IsAsigned = newTicket.IsAsigned;
                 ticket.HasNewMessages = newTicket.HasNewMessages;
-                ticket.newMessagesCount++;
+                ticket.newMessagesCount = newTicket.newMessagesCount;
 
                 _unitOfWork.TicketsRepository.Update(ticket);
                 await _unitOfWork.SaveChanges();
