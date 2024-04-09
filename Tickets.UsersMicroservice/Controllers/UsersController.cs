@@ -211,6 +211,33 @@ namespace Tickets.UsersMicroservice.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        ///     Obtiene los usuarios con rol SupportTechnician.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("users/gettechnicians")]
+        public async Task<JsonResult> GetUsersWithRole()
+        {
+            try
+            {
+                var result = new List<User>();
+                var users = await IoTServiceUsers.GetAll();
+                foreach (var user in users)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    var role = roles.FirstOrDefault();
+                    if (role.Equals("SupportTechnician"))
+                    {
+                        result.Add(user);
+                    }
+                }
+                return new JsonResult(result);
+            }
+            catch (Exception e)
+            {
+                return new JsonResult(new UserDto());
+            }
+        }
 
 
         #endregion
