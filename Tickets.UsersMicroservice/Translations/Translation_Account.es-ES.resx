@@ -120,6 +120,12 @@
   <data name="CONFIGURATION" xml:space="preserve">
     <value>Configuración</value>
   </data>
+  <data name="Email_body" xml:space="preserve">
+    <value>Puedes restablecer tu contraseña a través del siguiente enlace: </value>
+  </data>
+  <data name="Email_title" xml:space="preserve">
+    <value>Restablecer Contraseña</value>
+  </data>
   <data name="Incorrect_password" xml:space="preserve">
     <value>Contraseña incorrecta</value>
   </data>

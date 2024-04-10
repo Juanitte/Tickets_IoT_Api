@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Tickets.UsersMicroservice.Models.Context;
 using Tickets.UsersMicroservice.Models.Entities;
 using Tickets.UsersMicroservice.Models.Repositories;
@@ -73,6 +74,19 @@ namespace Tickets.UsersMicroservice.Models.UnitsOfWork
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();
+        }
+
+
+        public void DetachLocal(User t, string entryId)
+        {
+            var local = _context.Set<User>()
+                .Local
+                .FirstOrDefault(entry => entry.Id.Equals(entryId));
+            if (local != null)
+            {
+                _context.Entry(local).State = EntityState.Detached;
+            }
+            _context.Entry(t).State = EntityState.Modified;
         }
 
         #endregion

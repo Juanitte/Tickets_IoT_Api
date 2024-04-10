@@ -58,6 +58,18 @@ namespace Tickets.UsersMicroservice.Services
         /// <returns></returns>
         Task<IList<string>> GetUserRoles(User user);
 
+        /// <summary>
+        ///     Actualiza la contraseña del usuario
+        /// </summary>
+        /// <param name="user"><see cref="User"/> con los datos del usuario</param>
+        /// <param name="password">Nueva contraseña</param>
+        /// <returns></returns>
+        Task<bool> UpdateUserPassword(User user, string password);
+
+        /// <summary>
+        ///     Genera el usuario SupportManager
+        /// </summary>
+        /// <returns></returns>
         Task<User> DefaultUser();
     }
 
@@ -400,14 +412,19 @@ namespace Tickets.UsersMicroservice.Services
             try
             {
                 string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+                Console.WriteLine(resetToken);
+                _unitOfWork.DetachLocal(user, user.Id.ToString());
                 var result = await _userManager.ResetPasswordAsync(user, resetToken, password);
+                Console.WriteLine(result.Succeeded);
                 await _userManager.UpdateAsync(user);
+                Console.WriteLine(result.Succeeded);
 
                 return result.Succeeded;
             }
             catch (Exception e)
             {
                 _logger.LogError("IdentitiesService.UpdateUserPassword", e);
+                Console.WriteLine(e.Message);
                 throw;
             }
         }

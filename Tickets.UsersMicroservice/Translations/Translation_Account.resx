@@ -120,6 +120,12 @@
   <data name="CONFIGURATION" xml:space="preserve">
     <value>Configuration</value>
   </data>
+  <data name="Email_body" xml:space="preserve">
+    <value>You can reset your password using the following link: </value>
+  </data>
+  <data name="Email_title" xml:space="preserve">
+    <value>Password Reset</value>
+  </data>
   <data name="Incorrect_password" xml:space="preserve">
     <value>Incorrect password</value>
   </data>

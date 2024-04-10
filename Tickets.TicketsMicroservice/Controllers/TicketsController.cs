@@ -86,11 +86,14 @@ namespace Tickets.TicketsMicroservice.Controllers
 
             var result = await IoTServiceTickets.Create(ticket);
 
+            Console.WriteLine(createTicket.MessageDto == null);
+
             if (createTicket.MessageDto != null)
             {
-                Console.WriteLine("Id del ticket: ", result.Id);
                 var message = new Message(createTicket.MessageDto.Content, createTicket.MessageDto.Author, result.Id);
 
+
+                Console.WriteLine(createTicket.MessageDto.Attachments.IsNullOrEmpty());
 
                 if (!createTicket.MessageDto.Attachments.IsNullOrEmpty())
                 {
@@ -98,7 +101,6 @@ namespace Tickets.TicketsMicroservice.Controllers
                     {
                         if (attachment != null)
                         {
-                            Console.WriteLine("Id del ticket: ", result.Id);
                             string attachmentPath = await SaveAttachmentToFileSystem(attachment, result.Id);
                             Attachment newAttachment = new Attachment(attachmentPath, message.Id);
                             message.AttachmentPaths.Add(newAttachment);

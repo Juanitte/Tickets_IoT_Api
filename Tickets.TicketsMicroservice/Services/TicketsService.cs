@@ -343,7 +343,7 @@ namespace Tickets.TicketsMicroservice.Services
         /// <summary>
         ///     Envía un email
         /// </summary>
-        /// <param name="email">el eamil destino</param>
+        /// <param name="email">el email destino</param>
         /// <param name="link">el enlace de seguimiento</param>
         /// <returns></returns>
         public async void SendMail(string email, string link)

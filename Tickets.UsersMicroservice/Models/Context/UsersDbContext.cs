@@ -32,5 +32,13 @@ namespace Tickets.UsersMicroservice.Models.Context
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles").HasKey(r => r.Id);
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+            // Habilita el sensitive logging
+            optionsBuilder.EnableSensitiveDataLogging();
+        }
     }
 }

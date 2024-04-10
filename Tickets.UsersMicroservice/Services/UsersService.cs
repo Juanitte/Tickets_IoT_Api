@@ -1,7 +1,9 @@
 ﻿using Duende.IdentityServer.Extensions;
+using MailKit.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 using System.Security.Principal;
 using Tickets.UsersMicroservice.Models.Dtos.CreateDto;
 using Tickets.UsersMicroservice.Models.Dtos.EntityDto;
@@ -109,7 +111,7 @@ namespace Tickets.UsersMicroservice.Services
         /// </summary>
         /// <param name="mail"></param>
         /// <returns></returns>
-        Task<bool> SendMail(MailDataDto mail);
+        void SendMail(string email, string link);
     }
     public sealed class UsersService : BaseService, IUsersService
     {
@@ -394,11 +396,6 @@ namespace Tickets.UsersMicroservice.Services
             }
         }
 
-        public Task<bool> SendMail(MailDataDto mail)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         ///     Actualiza los datos de un usuario en la base de datos
         /// </summary>
@@ -433,6 +430,36 @@ namespace Tickets.UsersMicroservice.Services
             }
         }
 
+        /// <summary>
+        ///     Envía un email
+        /// </summary>
+        /// <param name="email">el email destino</param>
+        /// <param name="link">el enlace de restablecer contraseña</param>
+        /// <returns></returns>
+        public async void SendMail(string email, string link)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("IoT Incidencias", "noreply.iot.incidencias@gmail.com"));
+                message.To.Add(new MailboxAddress("", email));
+                message.Subject = Translation_Account.Email_title;
+                message.Body = new TextPart("plain") { Text = string.Concat(Translation_Account.Email_body, "\n", link) };
+
+                using (var client = new MailKit.Net.Smtp.SmtpClient())
+                {
+                    client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                    client.Authenticate("noreply.iot.incidencias@gmail.com", "levp dwqb qacd vhle");
+                    client.Send(message);
+                    client.Disconnect(true);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Send Mail => ", e);
+            }
+        }
+
         #endregion
 
         #region Métodos privados
@@ -462,6 +489,7 @@ namespace Tickets.UsersMicroservice.Services
 
             return errorMessages;
         }
+
 
         #endregion
 

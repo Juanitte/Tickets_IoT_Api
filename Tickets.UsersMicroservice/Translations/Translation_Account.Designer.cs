@@ -70,6 +70,24 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
+        ///   Busca una cadena traducida similar a You can reset your password using the following link: .
+        /// </summary>
+        public static string Email_body {
+            get {
+                return ResourceManager.GetString("Email_body", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Busca una cadena traducida similar a Password Reset.
+        /// </summary>
+        public static string Email_title {
+            get {
+                return ResourceManager.GetString("Email_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Busca una cadena traducida similar a Incorrect password.
         /// </summary>
         public static string Incorrect_password {

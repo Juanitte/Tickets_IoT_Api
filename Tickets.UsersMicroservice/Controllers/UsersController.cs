@@ -24,7 +24,7 @@ namespace Tickets.UsersMicroservice.Controllers
 
         #region Constructores
 
-        public UsersController(IServiceProvider serviceCollection,  IWebHostEnvironment hostingEnvironment, UserManager<User> userManager) : base(serviceCollection)
+        public UsersController(IServiceProvider serviceCollection, IWebHostEnvironment hostingEnvironment, UserManager<User> userManager) : base(serviceCollection)
         {
             _hostingEnvironment = hostingEnvironment;
             _userManager = userManager;
@@ -199,7 +199,7 @@ namespace Tickets.UsersMicroservice.Controllers
             try
             {
                 var result = await IoTServiceUsers.Remove(id);
-                if(result.Errors != null && result.Errors.Any())
+                if (result.Errors != null && result.Errors.Any())
                 {
                     response.Error = new GenericErrorDto() { Id = ResponseCodes.DataError, Description = result.Errors.ToList().ToDisplayList(), Location = "Users/Remove" };
                 }
@@ -216,7 +216,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("users/gettechnicians")]
-        public async Task<JsonResult> GetUsersWithRole()
+        public async Task<JsonResult> GetTechnicians()
         {
             try
             {
@@ -236,6 +236,63 @@ namespace Tickets.UsersMicroservice.Controllers
             catch (Exception e)
             {
                 return new JsonResult(new UserDto());
+            }
+        }
+
+        /// <summary>
+        ///     Envía un correo de restablecer contraseña al email proporcionado
+        /// </summary>
+        /// <param name="username">el nombre del correo</param>
+        /// <param name="domain">el dominio del correo (ej. 'gmail')</param>
+        /// <param name="tld">el final del correo (ej. '.com')</param>
+        /// <returns></returns>
+        [HttpGet("users/sendemail/{username}/{domain}/{tld}")]
+        public async Task<IActionResult> SendEmail(string username, string domain, string tld)
+        {
+            try
+            {
+                var email = string.Concat(username, "@", domain, ".", tld);
+                Console.WriteLine(email);
+                var user = await IoTServiceUsers.GetByEmail(email);
+                Console.WriteLine(user.Email);
+                if (user != null)
+                {
+                    IoTServiceUsers.SendMail(email, string.Concat("http://localhost:4200/recuperar/", username, "/", domain, "/", tld));
+                    return Ok();
+                }
+
+                return BadRequest(user);
+            } catch (Exception e)
+            {
+                return BadRequest();
+            }
+        }
+
+        /// <summary>
+        ///     Restablece la contraseña de un usuario
+        /// </summary>
+        /// <param name="resetPassword"><see cref="ResetPasswordDto"/> con los datos de restablecimiento de contraseña</param>
+        /// <returns></returns>
+        [HttpPost("users/resetpassword")]
+        public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordDto resetPass)
+        {
+            try
+            {
+                var email = string.Concat(resetPass.Username, "@", resetPass.Domain, ".", resetPass.Tld);
+                Console.WriteLine(email);
+                var user = await IoTServiceUsers.GetByEmail(email);
+                Console.WriteLine(user != null);
+                if (user != null)
+                {
+                    if(await IoTServiceIdentity.UpdateUserPassword(user, resetPass.Password))
+                    {
+                        return Ok();
+                    }
+                }
+                return BadRequest();
+            }catch (Exception e)
+            {
+                return BadRequest();
             }
         }
 
