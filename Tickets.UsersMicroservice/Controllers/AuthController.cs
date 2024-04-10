@@ -56,7 +56,8 @@ namespace Tickets.UsersMicroservice.Controllers
                     new Claim(Literals.Claim_Role, role),
                     new Claim(Literals.Claim_FullName, user.FullName),
                     new Claim(Literals.Claim_Email, user.Email),
-                    new Claim(Literals.Claim_PhoneNumber, user.PhoneNumber)
+                    new Claim(Literals.Claim_PhoneNumber, user.PhoneNumber),
+                    new Claim(Literals.Claim_LanguageId, user.Language.ToString())
                 });
 
                 var tokenHandler = new JwtSecurityTokenHandler();
