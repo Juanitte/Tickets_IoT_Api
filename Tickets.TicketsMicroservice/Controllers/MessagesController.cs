@@ -251,7 +251,13 @@ namespace Tickets.TicketsMicroservice.Controllers
             {
                 return BadRequest();
             }
-            return messages;
+
+            List<Message> result = new List<Message>();
+            for(int i = messages.Count - 1; i >= 0; i--)
+            {
+                result.Add(messages.ElementAt(i));
+            }
+            return result;
         }
 
         /// <summary>
