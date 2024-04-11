@@ -261,9 +261,10 @@ namespace Tickets.UsersMicroservice.Controllers
                 Console.WriteLine(email);
                 var user = await IoTServiceUsers.GetByEmail(email);
                 Console.WriteLine(user.Email);
+                string hashedEmail = Hash(email);
                 if (user != null)
                 {
-                    IoTServiceUsers.SendMail(email, string.Concat("http://localhost:4200/recuperar/", username, "/", domain, "/", tld));
+                    IoTServiceUsers.SendMail(email, string.Concat("http://localhost:4200/recuperar/", hashedEmail, "/", username, "/", domain, "/", tld));
                     return Ok();
                 }
 
@@ -306,6 +307,25 @@ namespace Tickets.UsersMicroservice.Controllers
         #endregion
 
         #region Métodos Privados
+
+        /// <summary>
+        ///     Hashea un texto
+        /// </summary>
+        /// <param name="text">el texto a hashear</param>
+        /// <returns></returns>
+        public static string Hash(string text)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
 
         /// <summary>
         ///     Hashea una contraseña igual que el frontend
