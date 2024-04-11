@@ -2,6 +2,8 @@
 using Common.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
+using System.Text;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
 using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Entities;
@@ -110,8 +112,9 @@ namespace Tickets.TicketsMicroservice.Controllers
                 result.Messages.Add(message);
 
                 result = await IoTServiceTickets.Update(result.Id, result);
+                string hashedId = Hash(result.Id.ToString());
 
-                IoTServiceTickets.SendMail(result.Email, string.Concat("http://localhost:4200/enlace/", result.Id));
+                IoTServiceTickets.SendMail(result.Email, string.Concat("http://localhost:4200/enlace/", hashedId, "/", result.Id));
             }
 
             return Ok(result);
@@ -273,6 +276,25 @@ namespace Tickets.TicketsMicroservice.Controllers
             }
 
             return filePath;
+        }
+
+        /// <summary>
+        ///     Hashea un texto
+        /// </summary>
+        /// <param name="text">el texto a hashear</param>
+        /// <returns></returns>
+        public static string Hash(string text)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
 
         #endregion
