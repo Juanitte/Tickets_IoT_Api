@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration.UserSecrets;
+using System.Security.Cryptography;
+using System.Text;
 using Tickets.UsersMicroservice.Models.Dtos.CreateDto;
 using Tickets.UsersMicroservice.Models.Dtos.EntityDto;
 using Tickets.UsersMicroservice.Models.Entities;
@@ -89,7 +91,9 @@ namespace Tickets.UsersMicroservice.Controllers
                 FullName = userDto.FullName
             };
 
-            var createUser = await _userManager.CreateAsync(user, userDto.Password);
+            string password = HashPassword("IoT@2024");
+
+            var createUser = await _userManager.CreateAsync(user, password);
 
             if (!createUser.Succeeded)
             {
@@ -120,7 +124,9 @@ namespace Tickets.UsersMicroservice.Controllers
                 FullName = userDto.FullName
             };
 
-            var createUser = await _userManager.CreateAsync(user, userDto.Password);
+            string password = HashPassword("IoT@2024");
+
+            var createUser = await _userManager.CreateAsync(user, password);
 
             if (!createUser.Succeeded)
             {
@@ -296,6 +302,29 @@ namespace Tickets.UsersMicroservice.Controllers
             }
         }
 
+
+        #endregion
+
+        #region Métodos Privados
+
+        /// <summary>
+        ///     Hashea una contraseña igual que el frontend
+        /// </summary>
+        /// <param name="password">la contraseña a hashear</param>
+        /// <returns></returns>
+        public static string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return string.Concat(builder.ToString(), "@", "A", "a");
+            }
+        }
 
         #endregion
     }

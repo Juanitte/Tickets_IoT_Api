@@ -1,6 +1,8 @@
 ﻿using Common.Utilities;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using Tickets.UsersMicroservice.Models.Dtos.EntityDto;
 using Tickets.UsersMicroservice.Models.Entities;
 using Tickets.UsersMicroservice.Models.UnitsOfWork;
@@ -497,7 +499,7 @@ namespace Tickets.UsersMicroservice.Services
         public async Task<User> DefaultUser()
         {
             const string userName = "SupportManager";
-            const string password = "IoT@2024";
+            string password = HashPassword("IoT@2024");
 
             try
             {
@@ -547,6 +549,29 @@ namespace Tickets.UsersMicroservice.Services
         {
             await _signInManager.SignOutAsync();
             await _signInManager.SignInAsync(user, true);
+        }
+
+        #endregion
+
+        #region Métodos privados
+
+        /// <summary>
+        ///     Hashea una contraseña igual que el frontend
+        /// </summary>
+        /// <param name="password">la contraseña a hashear</param>
+        /// <returns></returns>
+        public static string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return string.Concat(builder.ToString(), "@", "A", "a");
+            }
         }
 
         #endregion
