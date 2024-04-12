@@ -72,4 +72,10 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+    <Folder Include="Models\Dtos\FilterDto\" />
+    <Folder Include="Models\Dtos\ResponseDto\" />
+  </ItemGroup>
+
 </Project>

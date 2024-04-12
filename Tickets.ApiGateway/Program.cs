@@ -1,11 +1,9 @@
 using Common.Utilities;
-using Handlers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.Authorization;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using System.Security.AccessControl;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,8 +18,7 @@ builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
 // Add services to the container.
-builder.Services.AddOcelot()
-    .AddDelegatingHandler<NoEncodingHandler>(true);
+builder.Services.AddOcelot();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
