@@ -346,7 +346,7 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="email">el email destino</param>
         /// <param name="link">el enlace de seguimiento</param>
         /// <returns></returns>
-        public async bool SendMail(string email, string link)
+        public bool SendMail(string email, string link)
         {
             try
             {
