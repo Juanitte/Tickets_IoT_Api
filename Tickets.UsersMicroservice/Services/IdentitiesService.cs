@@ -414,19 +414,15 @@ namespace Tickets.UsersMicroservice.Services
             try
             {
                 string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-                Console.WriteLine(resetToken);
                 _unitOfWork.DetachLocal(user, user.Id.ToString());
                 var result = await _userManager.ResetPasswordAsync(user, resetToken, password);
-                Console.WriteLine(result.Succeeded);
                 await _userManager.UpdateAsync(user);
-                Console.WriteLine(result.Succeeded);
 
                 return result.Succeeded;
             }
             catch (Exception e)
             {
                 _logger.LogError("IdentitiesService.UpdateUserPassword", e);
-                Console.WriteLine(e.Message);
                 throw;
             }
         }

@@ -113,7 +113,6 @@ namespace Tickets.TicketsMicroservice.Controllers
                 string hashedId = Hash(result.Id.ToString());
 
                 var isSent = IoTServiceTickets.SendMail(result.Email, string.Concat("http://localhost:4200/enlace/", hashedId, "/", result.Id));
-                Console.WriteLine(isSent);
             }
 
             return Ok(result);

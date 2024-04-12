@@ -85,8 +85,6 @@ namespace Tickets.TicketsMicroservice.Controllers
         [HttpPost("messages/create")]
         public async Task<IActionResult> Create([FromForm] MessageDto createMessage)
         {
-            Console.WriteLine("Content: ", createMessage.Content);
-            Console.WriteLine("Id del ticket: ", createMessage.TicketId);
 
             Message message;
             if (createMessage.Attachments.IsNullOrEmpty())

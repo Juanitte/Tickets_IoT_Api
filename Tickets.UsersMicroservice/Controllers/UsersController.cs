@@ -258,9 +258,7 @@ namespace Tickets.UsersMicroservice.Controllers
             try
             {
                 var email = string.Concat(username, "@", domain, ".", tld);
-                Console.WriteLine(email);
                 var user = await IoTServiceUsers.GetByEmail(email);
-                Console.WriteLine(user.Email);
                 string hashedEmail = Hash(email);
                 if (user != null)
                 {
@@ -286,9 +284,7 @@ namespace Tickets.UsersMicroservice.Controllers
             try
             {
                 var email = string.Concat(resetPass.Username, "@", resetPass.Domain, ".", resetPass.Tld);
-                Console.WriteLine(email);
                 var user = await IoTServiceUsers.GetByEmail(email);
-                Console.WriteLine(user != null);
                 if (user != null)
                 {
                     if(await IoTServiceIdentity.UpdateUserPassword(user, resetPass.Password))
