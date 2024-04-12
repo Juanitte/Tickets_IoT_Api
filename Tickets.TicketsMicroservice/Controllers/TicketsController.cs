@@ -88,14 +88,12 @@ namespace Tickets.TicketsMicroservice.Controllers
 
             var result = await IoTServiceTickets.Create(ticket);
 
-            Console.WriteLine(createTicket.MessageDto == null);
 
             if (createTicket.MessageDto != null)
             {
                 var message = new Message(createTicket.MessageDto.Content, createTicket.MessageDto.Author, result.Id);
 
 
-                Console.WriteLine(createTicket.MessageDto.Attachments.IsNullOrEmpty());
 
                 if (!createTicket.MessageDto.Attachments.IsNullOrEmpty())
                 {
@@ -114,7 +112,8 @@ namespace Tickets.TicketsMicroservice.Controllers
                 result = await IoTServiceTickets.Update(result.Id, result);
                 string hashedId = Hash(result.Id.ToString());
 
-                IoTServiceTickets.SendMail(result.Email, string.Concat("http://localhost:4200/enlace/", hashedId, "/", result.Id));
+                var isSent = IoTServiceTickets.SendMail(result.Email, string.Concat("http://localhost:4200/enlace/", hashedId, "/", result.Id));
+                Console.WriteLine(isSent);
             }
 
             return Ok(result);

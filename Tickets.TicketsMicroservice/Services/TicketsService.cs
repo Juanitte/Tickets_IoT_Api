@@ -87,7 +87,7 @@ namespace Tickets.TicketsMicroservice.Services
         /// </summary>
         /// <param name="email">el email destino</param>
         /// <param name="link">el enlace de seguimiento</param>
-        public void SendMail(string email, string link);
+        public bool SendMail(string email, string link);
     }
     public class TicketsService : BaseService , ITicketsService
     {
@@ -346,7 +346,7 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="email">el email destino</param>
         /// <param name="link">el enlace de seguimiento</param>
         /// <returns></returns>
-        public async void SendMail(string email, string link)
+        public async bool SendMail(string email, string link)
         {
             try
             {
@@ -362,10 +362,12 @@ namespace Tickets.TicketsMicroservice.Services
                     client.Authenticate("noreply.iot.incidencias@gmail.com", "levp dwqb qacd vhle");
                     client.Send(message);
                     client.Disconnect(true);
+                    return true;
                 }
             } catch(Exception e)
             {
                 _logger.LogError("Send Mail => ", e);
+                return false;
             }
         }
 
