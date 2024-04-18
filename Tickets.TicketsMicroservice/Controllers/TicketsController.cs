@@ -6,6 +6,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
 using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
+using Tickets.TicketsMicroservice.Models.Dtos.FilterDto;
+using Tickets.TicketsMicroservice.Models.Dtos.ResponseDto;
 using Tickets.TicketsMicroservice.Models.Entities;
 
 namespace Tickets.TicketsMicroservice.Controllers
@@ -48,6 +50,30 @@ namespace Tickets.TicketsMicroservice.Controllers
             catch (Exception e)
             {
                 return new JsonResult(new List<TicketDto>());
+            }
+        }
+
+        /// <summary>
+        ///     Método que obtiene todas las incidencias filtradas
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("tickets/getallfilter")]
+        public async Task<JsonResult> GetAllFilter([FromQuery] TicketFilterRequestDto filter)
+        {
+            Console.WriteLine("Datos en el controller");
+            Console.WriteLine(filter.State);
+            Console.WriteLine(filter.Priority);
+            Console.WriteLine(filter.UserId);
+            Console.WriteLine(filter.Start);
+            Console.WriteLine(filter.End);
+            try
+            {
+                var tickets = await IoTServiceTickets.GetAllFilter(filter);
+                return new JsonResult(tickets);
+            }
+            catch (Exception e)
+            {
+                return new JsonResult(new ResponseFilterTicketDto());
             }
         }
 

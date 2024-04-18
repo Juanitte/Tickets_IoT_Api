@@ -187,6 +187,25 @@
     },
 
     {
+      "DownstreamPathTemplate": "/tickets/getallfilter",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/tickets/getallfilter",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "Role": "SupportManager"
+      }
+    },
+
+    {
       "DownstreamPathTemplate": "/tickets/getbyid/{id}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [

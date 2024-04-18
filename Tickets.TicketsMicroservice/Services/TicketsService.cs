@@ -8,6 +8,8 @@ using MailKit.Security;
 using MailKit.Net.Smtp;
 using MimeKit;
 using Tickets.TicketsMicroservice.Translations;
+using Tickets.TicketsMicroservice.Models.Dtos.ResponseDto;
+using Tickets.TicketsMicroservice.Models.Dtos.FilterDto;
 
 namespace Tickets.TicketsMicroservice.Services
 {
@@ -81,6 +83,12 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="userId">el id del usuario</param>
         /// <returns>una lista con las incidencias asignadas al usuario <see cref="Ticket"/></returns>
         public Task<List<Ticket?>> GetByUser(int userId);
+
+        /// <summary>
+        ///     Obtiene los tickets filtrados
+        /// </summary>
+        /// <returns></returns>
+        Task<ResponseFilterTicketDto> GetAllFilter(TicketFilterRequestDto filter);
 
         /// <summary>
         ///     Envía un email
@@ -270,6 +278,168 @@ namespace Tickets.TicketsMicroservice.Services
             catch (Exception e)
             {
                 _logger.LogError("TicketsService.GetAll => ", e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     Obtiene los tickets filtrados
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ResponseFilterTicketDto> GetAllFilter(TicketFilterRequestDto filter)
+        {
+            try
+            {
+                var response = new ResponseFilterTicketDto();
+                var byState = new ResponseFilterTicketDto();
+                var byPriority = new ResponseFilterTicketDto();
+                var byUser = new ResponseFilterTicketDto();
+                var byStartDate = new ResponseFilterTicketDto();
+                var byEndDate = new ResponseFilterTicketDto();
+
+                //Obtener incidencias filtradas por estado
+                if (filter.State == -1)
+                {
+                    var filteredByState = _unitOfWork.TicketsRepository.GetAll();
+                    byState.Tickets = filteredByState.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por estado en el Service");
+                    Console.WriteLine(byState.Tickets.Count());
+                }
+                else
+                {
+                    var filteredByState = _unitOfWork.TicketsRepository.GetFiltered("State", ((States)filter.State).ToString(), FilterType.equals);
+                    byState.Tickets = filteredByState.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por estado en el Service");
+                    Console.WriteLine(byState.Tickets.Count());
+                }
+
+                //Obtener incidencias filtradas por prioridad
+                if (filter.Priority == -1)
+                {
+                    var filteredByPriority = _unitOfWork.TicketsRepository.GetAll();
+                    byPriority.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por prioridad en el Service");
+                    Console.WriteLine(byPriority.Tickets.Count());
+                }
+                else
+                {
+                    var filteredByPriority = _unitOfWork.TicketsRepository.GetFiltered("Priority", ((Priorities)filter.Priority).ToString(), FilterType.equals);
+                    byState.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por prioridad en el Service");
+                    Console.WriteLine(byPriority.Tickets.Count());
+                }
+
+                //Obtener incidencias filtradas por id de técnico
+                if (filter.UserId == 0)
+                {
+                    var filteredByUser = _unitOfWork.TicketsRepository.GetAll();
+                    byUser.Tickets = filteredByUser.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por tecnico en el Service");
+                    Console.WriteLine(byUser.Tickets.Count());
+                }
+                else
+                {
+                    var filteredByUser = await GetByUser(filter.UserId);
+                    byUser.Tickets = filteredByUser.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por tecnico en el Service");
+                    Console.WriteLine(byUser.Tickets.Count());
+                }
+
+                //Obtener incidencias filtradas por fecha
+                if(filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1)))
+                {
+                    var filteredByStartDate = _unitOfWork.TicketsRepository.GetAll();
+                    byStartDate.Tickets = filteredByStartDate.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por fecha inicial en el Service");
+                    Console.WriteLine(byStartDate.Tickets.Count());
+
+                    var filteredByEndDate = _unitOfWork.TicketsRepository.GetAll();
+                    byEndDate.Tickets = filteredByEndDate.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por fecha final en el Service");
+                    Console.WriteLine(byEndDate.Tickets.Count());
+                }
+                else
+                {
+                    //Obtener incidencias filtradas por fecha inicial
+                    var filteredByStartDate = _unitOfWork.TicketsRepository.GetAll();
+                    byStartDate.Tickets = filteredByStartDate.Where(ticket => ticket.Timestamp <= filter.End).Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por fecha inicial en el Service");
+                    Console.WriteLine(byStartDate.Tickets.Count());
+
+                    //Obtener incidencias filtradas por fecha final
+                    var filteredByEndDate = _unitOfWork.TicketsRepository.GetAll();
+                    byEndDate.Tickets = filteredByEndDate.Where(ticket => ticket.Timestamp >= filter.Start).Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Conteo de tickets tras el filtrado por fecha final en el Service");
+                    Console.WriteLine(byEndDate.Tickets.Count());
+                }
+
+                //Comparar las incidencias filtradas y devolver las coincidencias
+
+                    //Separar la lista más larga de las demás
+                var filteredResponses = new List<ResponseFilterTicketDto>
+                {
+                    byState,
+                    byPriority,
+                    byUser,
+                    byStartDate,
+                    byEndDate
+                };
+
+                var largerResponse = new ResponseFilterTicketDto();
+                var count = -1;
+                Console.WriteLine("Conteos");
+                foreach (var r in filteredResponses)
+                {
+
+                    if(r.Tickets.Count > count)
+                    {
+                        largerResponse = r;
+                        count = r.Tickets.Count;
+                        Console.WriteLine(count);
+                    }
+                }
+                filteredResponses.Remove(largerResponse);
+
+                Console.WriteLine("Tickets");
+                Console.WriteLine(largerResponse.Tickets.First().Id);
+                //Comprobar si cada incidencia se encuentra en todas las listas
+                Console.WriteLine("Comprobacion de resultados");
+                foreach(var t in largerResponse.Tickets)
+                {
+                    bool isIn = true;
+                    foreach (var r in filteredResponses)
+                    {
+                        foreach(var ticket in r.Tickets)
+                        {
+                            if (ticket.Id != t.Id)
+                            {
+                                isIn = false;
+                            }else
+                            {
+                                isIn = true;
+                                break;
+                            }
+                        }
+                        if (!isIn)
+                        {
+                            break;
+                        }
+                    }
+                    Console.WriteLine(isIn);
+                    if (isIn)
+                    {
+                        response.Tickets.Add(t);
+                    }
+                }
+
+                //Devuelve las incidencias que cumplan todos los filtros
+                Console.WriteLine("Conteo de incidencias de la respuesta");
+                Console.WriteLine(response.Tickets.Count());
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo las incidencias filtradas");
                 throw;
             }
         }

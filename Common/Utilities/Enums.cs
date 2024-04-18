@@ -7,6 +7,30 @@ using System.Threading.Tasks;
 namespace Common.Utilities
 {
     /// <summary>
+    ///     Tipos de orden
+    /// </summary>
+    public enum OrderType
+    {
+        up,
+        down
+    }
+
+    /// <summary>
+    ///     Tipos de filtrado para las tablas
+    /// </summary>
+    public enum FilterType
+    {
+        contains,
+        equals,
+        greatherThan,
+        greatherThanEqual,
+        isNullOrEmpty,
+        lessThan,
+        lessThanEqual,
+        notEquals
+    }
+
+    /// <summary>
     ///     Tipos de prioridades de incidencia
     /// </summary>
     public enum Priorities

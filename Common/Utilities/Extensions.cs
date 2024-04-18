@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using System.Reflection;
+using static Common.Attributes.ModelAttributes;
 
 namespace Common.Utilities
 {
@@ -46,6 +44,30 @@ namespace Common.Utilities
                 response = values[0];
 
             return response;
+        }
+
+        /// <summary>
+        ///     Obtiene los campos ordenables
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<string> GetSorteableFields<T>()
+        {
+            var properties = typeof(T).GetProperties().Where(x => x.GetCustomAttributes(typeof(SortableAttribute)).Any());
+
+            return properties.Select(s => s.Name);
+        }
+
+        /// <summary>
+        ///     Obtiene los campos filtrables
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<string> GetFilterablesFields<T>()
+        {
+            var properties = typeof(T).GetProperties().Where(x => x.GetCustomAttributes(typeof(FiltersAttribute)).Any());
+
+            return properties.Select(s => s.Name);
         }
     }
 }

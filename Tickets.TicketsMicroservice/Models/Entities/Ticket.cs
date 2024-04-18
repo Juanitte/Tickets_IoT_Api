@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Common.Utilities;
+using static Common.Attributes.ModelAttributes;
+using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 
 namespace Tickets.TicketsMicroservice.Models.Entities
 {
@@ -14,9 +16,17 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime Timestamp { get; set; }
+
+        [Filters]
         public int? UserId { get; set; }
+
+        [Filters]
         public string Priority { get; set; }
+
+        [Filters]
         public string State { get; set; }
+
+        [Filters]
         public bool IsAsigned { get; set; }
         public bool HasNewMessages { get; set; }
         public int newMessagesCount { get; set; }
@@ -76,6 +86,15 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.IsAsigned = false;
             this.HasNewMessages = true;
             this.newMessagesCount = 1;
+        }
+
+        /// <summary>
+        ///     Convierte el modelo en un objeto dto
+        /// </summary>
+        /// <returns></returns>
+        public TicketResumeDto ToResumeDto()
+        {
+            return this.ConvertModel(new TicketResumeDto());
         }
     }
 }

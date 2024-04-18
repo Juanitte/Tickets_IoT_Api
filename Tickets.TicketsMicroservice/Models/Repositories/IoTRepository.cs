@@ -1,9 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common.Utilities;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Reflection;
 using Tickets.TicketsMicroservice.Models.Context;
+using static Common.Attributes.ModelAttributes;
 
 namespace Tickets.TicketsMicroservice.Models.Repositories
 {
+    public class ResponseGetFilteredDto<T> where T : class
+    {
+        public int TotalFields { get; set; }
+
+        public IQueryable<T> Items { get; set; }
+    }
+
     public class IoTRepository<T> where T : class
     {
         #region Miembros privados de solo lectura
@@ -169,6 +179,71 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
         }
 
         /// <summary>
+        ///     Obtiene los elementos del repositorio de tipo <see cref="T"/> que cumplan con las condiciones de filtrado pasadas como parámetro
+        /// </summary>
+        /// <param name="propertyName">Nombre de la propiedad por la que filtrar</param>
+        /// <param name="value">Valor por el que filtrar</param>
+        /// <param name="filterType">Condición a aplicar</param>
+        /// <returns>Collección no modificable de elementos del tipo <see cref="T"/></returns>
+        public virtual IReadOnlyCollection<T> GetFiltered(string propertyName, object value, FilterType? filterType = FilterType.equals)
+        {
+            var propertyInfo = typeof(T).GetProperty(propertyName);
+            if (propertyInfo != null)
+            {
+                var filterAttributes = (FiltersAttribute)propertyInfo.GetCustomAttributes(typeof(FiltersAttribute), false).FirstOrDefault();
+                if (filterAttributes != null)
+                {
+                    Console.WriteLine("Repository");
+                    Console.WriteLine(propertyName);
+                    Console.WriteLine(value);
+                    switch (filterType)
+                    {
+
+                        //Operador de igualdad (por defecto)
+                        case FilterType.equals:
+                            return _dbSet.Where(PropertyEquals<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+
+                        //Operador de desigualdad
+                        case FilterType.notEquals:
+                            return _dbSet.Where(PropertyNotEquals<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+
+                        //Operador menor que
+                        case FilterType.lessThan:
+                            return _dbSet.Where(PropertyLessThan<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+
+                        //Operador menor o igual que
+                        case FilterType.lessThanEqual:
+                            return _dbSet.Where(PropertyLessThanOrEqual<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+
+                        //Operador mayor que
+                        case FilterType.greatherThan:
+                            return _dbSet.Where(PropertyGreaterThan<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+
+                        //Operador mayor o igual que
+                        case FilterType.greatherThanEqual:
+                            return _dbSet.Where(PropertyGreaterThanOrEqual<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+
+                        //Operador nulo
+                        case FilterType.isNullOrEmpty:
+                            return _dbSet.Where(PropertyEquals<T>(propertyInfo, value)).ToList()?.AsReadOnly(); //Todo:
+
+                        //Operador contiene
+                        case FilterType.contains:
+                            //Si el valor es nulo, esta en blanco o solo contiene espacios se devuelven todos los elementos
+                            if (value == null || string.IsNullOrEmpty(value.ToString()) || string.IsNullOrWhiteSpace(value.ToString()))
+                                return _dbSet.AsNoTracking().ToList().AsReadOnly();
+
+                            var stringValue = value.ToString()?.ToUpper();
+                            //Todo: Solo funciona con strings
+                            return _dbSet.Where(PropertyContains<T>(propertyInfo, stringValue)).ToList()?.AsReadOnly();
+                    }
+                }
+                throw new ArgumentException(string.Format("El campo {0} no posee el tipo de filtrado {1}", propertyName, filterType));
+            }
+            throw new ArgumentException(string.Format("El campo {0} no existe en el modelo {1}", propertyName, typeof(T).FullName));
+        }
+
+        /// <summary>
         ///     Elimina un elemento del tipo <see cref="T"/> de la base de datos en base a su id
         /// </summary>
         /// <param name="id">El id a eliminar</param>
@@ -210,6 +285,152 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
         #endregion
 
         #region Métodos privados
+
+        /// <summary>
+        ///     Ordena los elementos pasados como parámetro en función de la propiedad y si es descendente o no
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="property"></param>
+        /// <param name="methodName"></param>
+        /// <returns></returns>
+        private static IOrderedQueryable<T> ApplyOrder(IQueryable<T> source, string property, string methodName)
+        {
+            string[] props = property.Split('.');
+            Type type = typeof(T);
+            ParameterExpression arg = Expression.Parameter(type, "x");
+            Expression expr = arg;
+            foreach (string prop in props)
+            {
+                // use reflection (not ComponentModel) to mirror LINQ
+                PropertyInfo pi = type.GetProperty(prop);
+                expr = Expression.Property(expr, pi);
+                type = pi.PropertyType;
+            }
+            Type delegateType = typeof(Func<,>).MakeGenericType(typeof(T), type);
+            LambdaExpression lambda = Expression.Lambda(delegateType, expr, arg);
+
+            object result = typeof(Queryable).GetMethods().Single(
+                    method => method.Name == methodName
+                            && method.IsGenericMethodDefinition
+                            && method.GetGenericArguments().Length == 2
+                            && method.GetParameters().Length == 2)
+                    .MakeGenericMethod(typeof(T), type)
+                    .Invoke(null, new object[] { source, lambda });
+            return (IOrderedQueryable<T>)result;
+        }
+
+        /// <summary>
+        ///     Obtiene una expresión binaria (propiedad contiene valor) utilizable en linq
+        /// </summary>
+        /// <typeparam name="TItem">Tipo de la propiedad</typeparam>
+        /// <param name="property">Propiedad del valor</param>
+        /// <param name="value">Valor</param>
+        /// <returns>Expresión binaria generada</returns>
+        private static Expression<Func<TItem, bool>> PropertyContains<TItem>(PropertyInfo property, string value)
+        {
+            //Se obtiene la propiedad para usarla en la expresión
+            var parameterExp = Expression.Parameter(typeof(TItem));
+            var propertyExp = Expression.Property(parameterExp, property.Name);
+
+            //Se obtiene el método "Contains" de la clase string
+            MethodInfo methodContains = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+            var constantValue = Expression.Constant(value, typeof(string));
+
+            //Se genera la expresión a través del nombre de la propiedad, el método a ejectar y el valor pasado como parámetro
+            var containsMethodExp = Expression.Call(propertyExp, methodContains, constantValue);
+
+            return Expression.Lambda<Func<TItem, bool>>(containsMethodExp, parameterExp);
+        }
+
+        /// <summary>
+        ///     Obtiene una expresión binaria (propiedad == valor) utilizable en linq
+        /// </summary>
+        /// <typeparam name="TItem">Tipo de la propiedad</typeparam>
+        /// <param name="property">Propiedad del valor</param>
+        /// <param name="value">Valor</param>
+        /// <returns>Expresión binaria generada</returns>
+        private static Expression<Func<TItem, bool>> PropertyEquals<TItem>(PropertyInfo property, object value)
+        {
+            var param = Expression.Parameter(typeof(TItem));
+            var body = Expression.Equal(Expression.Property(param, property), Expression.Constant(value));
+
+            return Expression.Lambda<Func<TItem, bool>>(body, param);
+        }
+
+        /// <summary>
+        ///     Obtiene una expresión binaria (propiedad != valor) utilizable en linq
+        /// </summary>
+        /// <typeparam name="TItem">Tipo de la propiedad</typeparam>
+        /// <param name="property">Propiedad del valor</param>
+        /// <param name="value">Valor</param>
+        /// <returns>Expresión binaria generada</returns>
+        private static Expression<Func<TItem, bool>> PropertyNotEquals<TItem>(PropertyInfo property, object value)
+        {
+            var param = Expression.Parameter(typeof(TItem));
+            var body = Expression.NotEqual(Expression.Property(param, property), Expression.Constant(value));
+
+            return Expression.Lambda<Func<TItem, bool>>(body, param);
+        }
+
+        /// <summary>
+        ///     Obtiene una expresión binaria (propiedad < valor) utilizable en linq
+        /// </summary>
+        /// <typeparam name="TItem">Tipo de la propiedad</typeparam>
+        /// <param name="property">Propiedad del valor</param>
+        /// <param name="value">Valor</param>
+        /// <returns>Expresión binaria generada</returns>
+        private static Expression<Func<TItem, bool>> PropertyLessThan<TItem>(PropertyInfo property, object value)
+        {
+            var param = Expression.Parameter(typeof(TItem));
+            var body = Expression.LessThan(Expression.Property(param, property), Expression.Constant(value));
+
+            return Expression.Lambda<Func<TItem, bool>>(body, param);
+        }
+
+        /// <summary>
+        ///     Obtiene una expresión binaria (propiedad <= valor) utilizable en linq
+        /// </summary>
+        /// <typeparam name="TItem">Tipo de la propiedad</typeparam>
+        /// <param name="property">Propiedad del valor</param>
+        /// <param name="value">Valor</param>
+        /// <returns>Expresión binaria generada</returns>
+        private static Expression<Func<TItem, bool>> PropertyLessThanOrEqual<TItem>(PropertyInfo property, object value)
+        {
+            var param = Expression.Parameter(typeof(TItem));
+            var body = Expression.LessThanOrEqual(Expression.Property(param, property), Expression.Constant(value));
+
+            return Expression.Lambda<Func<TItem, bool>>(body, param);
+        }
+
+        /// <summary>
+        ///     Obtiene una expresión binaria (propiedad > valor) utilizable en linq
+        /// </summary>
+        /// <typeparam name="TItem">Tipo de la propiedad</typeparam>
+        /// <param name="property">Propiedad del valor</param>
+        /// <param name="value">Valor</param>
+        /// <returns>Expresión binaria generada</returns>
+        private static Expression<Func<TItem, bool>> PropertyGreaterThan<TItem>(PropertyInfo property, object value)
+        {
+            var param = Expression.Parameter(typeof(TItem));
+            var body = Expression.GreaterThan(Expression.Property(param, property), Expression.Constant(value));
+
+            return Expression.Lambda<Func<TItem, bool>>(body, param);
+        }
+
+        /// <summary>
+        ///     Obtiene una expresión binaria (propiedad >= valor) utilizable en linq
+        /// </summary>
+        /// <typeparam name="TItem">Tipo de la propiedad</typeparam>
+        /// <param name="property">Propiedad del valor</param>
+        /// <param name="value">Valor</param>
+        /// <returns>Expresión binaria generada</returns>
+        private static Expression<Func<TItem, bool>> PropertyGreaterThanOrEqual<TItem>(PropertyInfo property, object value)
+        {
+            var param = Expression.Parameter(typeof(TItem));
+            var body = Expression.GreaterThanOrEqual(Expression.Property(param, property), Expression.Constant(value));
+
+            return Expression.Lambda<Func<TItem, bool>>(body, param);
+        }
 
         /// <summary>
         ///     Aplica los includes pasados como parámetro al listado de elementos pasado como referencia

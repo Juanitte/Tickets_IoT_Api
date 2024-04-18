@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.Utilities;
+using System.ComponentModel;
 
 namespace Common.Dtos
 {
     public class GenericFilterRequestDto
     {
-        public int? FilterId { get; set; }
-        public string? FilterName { get; set; }
-        public string? FilterRole { get; set; }
+        public object? Value { get; set; }
+
+        [DefaultValue(FilterType.equals)]
+        public FilterType FilterType { get; set; }
+
+        public string? PropertyName { get; set; }
     }
 }
