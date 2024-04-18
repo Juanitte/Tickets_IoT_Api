@@ -193,9 +193,6 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
                 var filterAttributes = (FiltersAttribute)propertyInfo.GetCustomAttributes(typeof(FiltersAttribute), false).FirstOrDefault();
                 if (filterAttributes != null)
                 {
-                    Console.WriteLine("Repository");
-                    Console.WriteLine(propertyName);
-                    Console.WriteLine(value);
                     switch (filterType)
                     {
 

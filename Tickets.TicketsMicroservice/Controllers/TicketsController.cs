@@ -60,12 +60,6 @@ namespace Tickets.TicketsMicroservice.Controllers
         [HttpGet("tickets/getallfilter")]
         public async Task<JsonResult> GetAllFilter([FromQuery] TicketFilterRequestDto filter)
         {
-            Console.WriteLine("Datos en el controller");
-            Console.WriteLine(filter.State);
-            Console.WriteLine(filter.Priority);
-            Console.WriteLine(filter.UserId);
-            Console.WriteLine(filter.Start);
-            Console.WriteLine(filter.End);
             try
             {
                 var tickets = await IoTServiceTickets.GetAllFilter(filter);
@@ -285,7 +279,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <returns>la ruta del archivo guardado</returns>
         private async Task<string> SaveAttachmentToFileSystem(IFormFile attachment, int ticketId)
         {
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(attachment.FileName);
+            var fileName = Path.GetFileNameWithoutExtension(attachment.FileName) + Guid.NewGuid().ToString() + Path.GetExtension(attachment.FileName);
             string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
             string filePath = Path.Combine(directoryPath, fileName);
 

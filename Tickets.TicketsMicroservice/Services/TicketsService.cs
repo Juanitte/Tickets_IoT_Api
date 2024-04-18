@@ -302,15 +302,11 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     var filteredByState = _unitOfWork.TicketsRepository.GetAll();
                     byState.Tickets = filteredByState.Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por estado en el Service");
-                    Console.WriteLine(byState.Tickets.Count());
                 }
                 else
                 {
                     var filteredByState = _unitOfWork.TicketsRepository.GetFiltered("State", ((States)filter.State).ToString(), FilterType.equals);
                     byState.Tickets = filteredByState.Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por estado en el Service");
-                    Console.WriteLine(byState.Tickets.Count());
                 }
 
                 //Obtener incidencias filtradas por prioridad
@@ -318,15 +314,11 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     var filteredByPriority = _unitOfWork.TicketsRepository.GetAll();
                     byPriority.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por prioridad en el Service");
-                    Console.WriteLine(byPriority.Tickets.Count());
                 }
                 else
                 {
                     var filteredByPriority = _unitOfWork.TicketsRepository.GetFiltered("Priority", ((Priorities)filter.Priority).ToString(), FilterType.equals);
                     byState.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por prioridad en el Service");
-                    Console.WriteLine(byPriority.Tickets.Count());
                 }
 
                 //Obtener incidencias filtradas por id de técnico
@@ -334,15 +326,11 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     var filteredByUser = _unitOfWork.TicketsRepository.GetAll();
                     byUser.Tickets = filteredByUser.Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por tecnico en el Service");
-                    Console.WriteLine(byUser.Tickets.Count());
                 }
                 else
                 {
                     var filteredByUser = await GetByUser(filter.UserId);
                     byUser.Tickets = filteredByUser.Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por tecnico en el Service");
-                    Console.WriteLine(byUser.Tickets.Count());
                 }
 
                 //Obtener incidencias filtradas por fecha
@@ -350,27 +338,19 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     var filteredByStartDate = _unitOfWork.TicketsRepository.GetAll();
                     byStartDate.Tickets = filteredByStartDate.Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por fecha inicial en el Service");
-                    Console.WriteLine(byStartDate.Tickets.Count());
 
                     var filteredByEndDate = _unitOfWork.TicketsRepository.GetAll();
                     byEndDate.Tickets = filteredByEndDate.Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por fecha final en el Service");
-                    Console.WriteLine(byEndDate.Tickets.Count());
                 }
                 else
                 {
                     //Obtener incidencias filtradas por fecha inicial
                     var filteredByStartDate = _unitOfWork.TicketsRepository.GetAll();
                     byStartDate.Tickets = filteredByStartDate.Where(ticket => ticket.Timestamp <= filter.End).Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por fecha inicial en el Service");
-                    Console.WriteLine(byStartDate.Tickets.Count());
 
                     //Obtener incidencias filtradas por fecha final
                     var filteredByEndDate = _unitOfWork.TicketsRepository.GetAll();
                     byEndDate.Tickets = filteredByEndDate.Where(ticket => ticket.Timestamp >= filter.Start).Select(s => s.ToResumeDto()).ToList();
-                    Console.WriteLine("Conteo de tickets tras el filtrado por fecha final en el Service");
-                    Console.WriteLine(byEndDate.Tickets.Count());
                 }
 
                 //Comparar las incidencias filtradas y devolver las coincidencias
@@ -387,7 +367,6 @@ namespace Tickets.TicketsMicroservice.Services
 
                 var largerResponse = new ResponseFilterTicketDto();
                 var count = -1;
-                Console.WriteLine("Conteos");
                 foreach (var r in filteredResponses)
                 {
 
@@ -395,15 +374,11 @@ namespace Tickets.TicketsMicroservice.Services
                     {
                         largerResponse = r;
                         count = r.Tickets.Count;
-                        Console.WriteLine(count);
                     }
                 }
                 filteredResponses.Remove(largerResponse);
 
-                Console.WriteLine("Tickets");
-                Console.WriteLine(largerResponse.Tickets.First().Id);
                 //Comprobar si cada incidencia se encuentra en todas las listas
-                Console.WriteLine("Comprobacion de resultados");
                 foreach(var t in largerResponse.Tickets)
                 {
                     bool isIn = true;
@@ -425,7 +400,6 @@ namespace Tickets.TicketsMicroservice.Services
                             break;
                         }
                     }
-                    Console.WriteLine(isIn);
                     if (isIn)
                     {
                         response.Tickets.Add(t);
@@ -433,8 +407,6 @@ namespace Tickets.TicketsMicroservice.Services
                 }
 
                 //Devuelve las incidencias que cumplan todos los filtros
-                Console.WriteLine("Conteo de incidencias de la respuesta");
-                Console.WriteLine(response.Tickets.Count());
                 return response;
             }
             catch (Exception ex)
