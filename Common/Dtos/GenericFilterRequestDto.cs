@@ -7,9 +7,10 @@ namespace Common.Dtos
     {
         public object? Value { get; set; }
 
-        [DefaultValue(FilterType.equals)]
+        [DefaultValue(FilterType.contains)]
         public FilterType FilterType { get; set; }
 
         public string? PropertyName { get; set; }
+        public string? SearchString { get; set; }
     }
 }

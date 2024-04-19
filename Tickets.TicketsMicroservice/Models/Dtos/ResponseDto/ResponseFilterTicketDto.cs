@@ -10,6 +10,7 @@ namespace Tickets.TicketsMicroservice.Models.Dtos.ResponseDto
         public ResponseFilterTicketDto()
         {
             this.Tickets = new List<TicketResumeDto>();
+            FilterablesFields = Extensions.GetFilterablesFields<Ticket>();
         }
 
         public List<TicketResumeDto> Tickets { get; set; }

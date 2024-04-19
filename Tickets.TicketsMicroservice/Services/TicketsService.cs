@@ -296,6 +296,7 @@ namespace Tickets.TicketsMicroservice.Services
                 var byUser = new ResponseFilterTicketDto();
                 var byStartDate = new ResponseFilterTicketDto();
                 var byEndDate = new ResponseFilterTicketDto();
+                var bySearchString = new ResponseFilterTicketDto();
 
                 //Obtener incidencias filtradas por estado
                 if (filter.State == -1)
@@ -353,6 +354,18 @@ namespace Tickets.TicketsMicroservice.Services
                     byEndDate.Tickets = filteredByEndDate.Where(ticket => ticket.Timestamp >= filter.Start).Select(s => s.ToResumeDto()).ToList();
                 }
 
+                //Obtener incidencias filtradas por texto introducido
+                if (filter.SearchString == null || filter.SearchString.Equals(""))
+                {
+                    var filteredBySearchString = _unitOfWork.TicketsRepository.GetAll();
+                    bySearchString.Tickets = filteredBySearchString.Where(ticket => ticket != null).Select(s => s.ToResumeDto()).ToList();
+                }
+                else
+                {
+                    var filteredBySearchString = _unitOfWork.TicketsRepository.GetFiltered(filter.SearchString);
+                    bySearchString.Tickets = filteredBySearchString.Items.Where(ticket => ticket != null).Select(s => s.ToResumeDto()).ToList();
+                }
+
                 //Comparar las incidencias filtradas y devolver las coincidencias
 
                     //Separar la lista más larga de las demás
@@ -362,7 +375,8 @@ namespace Tickets.TicketsMicroservice.Services
                     byPriority,
                     byUser,
                     byStartDate,
-                    byEndDate
+                    byEndDate,
+                    bySearchString
                 };
 
                 var largerResponse = new ResponseFilterTicketDto();

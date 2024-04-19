@@ -12,21 +12,20 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        [Filters]
         public string Title { get; set; }
+
+        [Filters]
         public string Name { get; set; }
+
+        [Filters]
         public string Email { get; set; }
         public DateTime Timestamp { get; set; }
-
-        [Filters]
         public int? UserId { get; set; }
-
-        [Filters]
         public string Priority { get; set; }
-
-        [Filters]
         public string State { get; set; }
 
-        [Filters]
         public bool IsAsigned { get; set; }
         public bool HasNewMessages { get; set; }
         public int newMessagesCount { get; set; }

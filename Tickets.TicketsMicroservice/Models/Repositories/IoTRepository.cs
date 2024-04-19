@@ -181,6 +181,52 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
         /// <summary>
         ///     Obtiene los elementos del repositorio de tipo <see cref="T"/> que cumplan con las condiciones de filtrado pasadas como parámetro
         /// </summary>
+        /// <param name="filter">Expresión de filtrado inicial</param>
+        /// <param name="searchString">Texto de búsqueda</param>
+        /// <param name="orderField">Campo de ordenación</param>
+        /// <param name="orderType"><see cref="OrderType"/> con la dirección de ordenación</param>
+        /// <returns>Collección no modificable de elementos del tipo <see cref="T"/></returns>
+        public virtual ResponseGetFilteredDto<T> GetFiltered(string searchString, Expression<Func<T, bool>> filter = null, Expression<Func<T, object>>[] includes = null)
+        {
+            IQueryable<T> objects = null;
+            ResponseGetFilteredDto<T> response = new ResponseGetFilteredDto<T>();
+
+            if (filter != null)
+                objects = _dbSet.Where(filter).AsQueryable();
+            else
+                objects = _dbSet;
+
+            if (includes != null)
+                ApplyIncludes(ref objects, includes);
+
+            List<T> temp = new List<T>();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                //Se obtienen las propiedades por las que se puede filtrar
+                var filterableProperties = typeof(T).GetProperties().Where(x => x.GetCustomAttributes(typeof(FiltersAttribute)).Any());
+                if (filterableProperties != null)
+                {
+                    foreach (var propertyInfo in filterableProperties)
+                    {
+                        var customAttributeData = propertyInfo.CustomAttributes.FirstOrDefault(x => x.AttributeType.Name == nameof(FiltersAttribute));
+                        var objArguments = customAttributeData.ConstructorArguments.FirstOrDefault(x => x.ArgumentType == typeof(FilterType[])).Value;
+
+                        IQueryable<T> tempObjects = objects.Where(PropertyContains<T>(propertyInfo, searchString));
+                        temp.AddRange(tempObjects);
+                    }
+                    objects = temp.Distinct().AsQueryable();
+                }
+            }
+
+            response.Items = objects;
+            response.TotalFields = objects.Count();
+
+            return response;
+        }
+
+        /// <summary>
+        ///     Obtiene los elementos del repositorio de tipo <see cref="T"/> que cumplan con las condiciones de filtrado pasadas como parámetro
+        /// </summary>
         /// <param name="propertyName">Nombre de la propiedad por la que filtrar</param>
         /// <param name="value">Valor por el que filtrar</param>
         /// <param name="filterType">Condición a aplicar</param>
