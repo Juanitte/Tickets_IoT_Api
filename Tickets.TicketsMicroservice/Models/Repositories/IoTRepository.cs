@@ -236,9 +236,6 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
             var propertyInfo = typeof(T).GetProperty(propertyName);
             if (propertyInfo != null)
             {
-                var filterAttributes = (FiltersAttribute)propertyInfo.GetCustomAttributes(typeof(FiltersAttribute), false).FirstOrDefault();
-                if (filterAttributes != null)
-                {
                     switch (filterType)
                     {
 
@@ -282,8 +279,7 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
                     }
                 }
                 throw new ArgumentException(string.Format("El campo {0} no posee el tipo de filtrado {1}", propertyName, filterType));
-            }
-            throw new ArgumentException(string.Format("El campo {0} no existe en el modelo {1}", propertyName, typeof(T).FullName));
+            
         }
 
         /// <summary>

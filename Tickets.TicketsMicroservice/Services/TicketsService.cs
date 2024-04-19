@@ -290,6 +290,12 @@ namespace Tickets.TicketsMicroservice.Services
         {
             try
             {
+
+                Console.WriteLine("Filter State");
+                Console.WriteLine(filter.State);
+                Console.WriteLine("Filter Priority");
+                Console.WriteLine(filter.Priority);
+
                 var response = new ResponseFilterTicketDto();
                 var byState = new ResponseFilterTicketDto();
                 var byPriority = new ResponseFilterTicketDto();
@@ -303,11 +309,17 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     var filteredByState = _unitOfWork.TicketsRepository.GetAll();
                     byState.Tickets = filteredByState.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Por estado");
+                    Console.WriteLine(byState.Tickets.Count);
                 }
                 else
                 {
+                    Console.WriteLine("Estado a filtrar");
+                    Console.WriteLine(((States)filter.State).ToString());
                     var filteredByState = _unitOfWork.TicketsRepository.GetFiltered("State", ((States)filter.State).ToString(), FilterType.equals);
                     byState.Tickets = filteredByState.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Por estado");
+                    Console.WriteLine(byState.Tickets.Count);
                 }
 
                 //Obtener incidencias filtradas por prioridad
@@ -315,11 +327,15 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     var filteredByPriority = _unitOfWork.TicketsRepository.GetAll();
                     byPriority.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Por prioridad");
+                    Console.WriteLine(byPriority.Tickets.Count);
                 }
                 else
                 {
                     var filteredByPriority = _unitOfWork.TicketsRepository.GetFiltered("Priority", ((Priorities)filter.Priority).ToString(), FilterType.equals);
                     byState.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
+                    Console.WriteLine("Por prioridad");
+                    Console.WriteLine(byPriority.Tickets.Count);
                 }
 
                 //Obtener incidencias filtradas por id de técnico
