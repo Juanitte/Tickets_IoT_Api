@@ -333,7 +333,7 @@ namespace Tickets.TicketsMicroservice.Services
                 else
                 {
                     var filteredByPriority = _unitOfWork.TicketsRepository.GetFiltered("Priority", ((Priorities)filter.Priority).ToString(), FilterType.equals);
-                    byState.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
+                    byPriority.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
                     Console.WriteLine("Por prioridad");
                     Console.WriteLine(byPriority.Tickets.Count);
                 }
