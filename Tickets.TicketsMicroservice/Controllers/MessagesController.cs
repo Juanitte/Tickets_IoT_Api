@@ -3,7 +3,6 @@ using Common.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Tickets.MessagesMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
 using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Entities;
@@ -39,22 +38,11 @@ namespace Tickets.TicketsMicroservice.Controllers
             try
             {
                 var messages = await IoTServiceMessages.GetAll();
-                var attachments = await IoTServiceAttachments.GetAll();
-                foreach (var message in messages)
-                {
-                    foreach (var attachment in attachments)
-                    {
-                        if(message.Id == attachment.MessageId)
-                        {
-                            message.AttachmentPaths.Add(attachment);
-                        }
-                    }
-                }
                 return new JsonResult(messages);
             }
             catch (Exception e)
             {
-                return new JsonResult(new List<MessageDto>());
+                return new JsonResult(new List<CreateMessageDto>());
             }
         }
 
@@ -73,96 +61,51 @@ namespace Tickets.TicketsMicroservice.Controllers
             }
             catch (Exception e)
             {
-                return new JsonResult(new MessageDto());
+                return new JsonResult(new CreateMessageDto());
             }
         }
 
         /// <summary>
         ///     Método que crea un nuevo mensaje
         /// </summary>
-        /// <param name="createMessage"><see cref="MessageDto"/> con los datos del mensaje</param>
+        /// <param name="createMessage"><see cref="CreateMessageDto"/> con los datos del mensaje</param>
         /// <returns></returns>
         [HttpPost("messages/create")]
-        public async Task<IActionResult> Create([FromForm] MessageDto createMessage)
+        public async Task<IActionResult> Create([FromForm] CreateMessageDto createMessage)
         {
+            try
+            {
+                var response = new CreateEditRemoveResponseDto();
 
-            Message message;
-            if (createMessage.Attachments.IsNullOrEmpty())
-            {
-                message = new Message(createMessage.Content, createMessage.Author, createMessage.TicketId);
-            }
-            else
-            {
-                message = new Message(createMessage.Content, createMessage.Author, createMessage.TicketId);
-                if (!createMessage.Attachments.IsNullOrEmpty())
-                {
-                    foreach (var attachment in createMessage.Attachments)
-                    {
-                        if (attachment != null)
-                        {
-                            string attachmentPath = await SaveAttachmentToFileSystem(attachment, createMessage.TicketId);
-                            Attachment newAttachment = new Attachment(attachmentPath, message.Id);
-                            message.AttachmentPaths.Add(newAttachment);
-                        }
-                    }
-                }
-            }
-            if (message == null)
-            {
-                return Problem("Entity 'message' is null.");
-            }
-            await IoTServiceMessages.Create(message);
+                response = await IoTServiceMessages.Create(createMessage);
 
-            Ticket ticket = await IoTServiceTickets.Get(createMessage.TicketId);
-            if (ticket != null)
-            {
-                ticket.HasNewMessages = true;
-                await IoTServiceTickets.Update(createMessage.TicketId, ticket);
+                return Ok(createMessage);
             }
-
-            return Ok(message);
+            catch(Exception e)
+            {
+                return Problem(e.Message);
+            }
         }
 
         /// <summary>
         ///     Método que actualiza un mensaje con id proporcionado como parámetro
         /// </summary>
         /// <param name="messageId">El id del mensaje a editar</param>
-        /// <param name="newMessage"><see cref="MessageDto"/> con los nuevos datos del mensaje</param>
+        /// <param name="newMessage"><see cref="CreateMessageDto"/> con los nuevos datos del mensaje</param>
         /// <returns></returns>
         [HttpPut("messages/update/{messageId}")]
-        public async Task<IActionResult> Update(int messageId, MessageDto newMessage)
+        public async Task<IActionResult> Update(int messageId, CreateMessageDto newMessage)
         {
-            var message = await IoTServiceMessages.Get(messageId);
-            if (message == null)
+            try
             {
-                return BadRequest();
-            }
-            message.Content = newMessage.Content;
-
-            if (!newMessage.Attachments.IsNullOrEmpty())
-            {
-                message.AttachmentPaths.Clear();
-                foreach (var attachment in newMessage.Attachments)
-                {
-                    if (attachment != null)
-                    {
-                        string attachmentPath = await SaveAttachmentToFileSystem(attachment, message.TicketId);
-                        Attachment newAttachment = new Attachment(attachmentPath, message.Id);
-                        message.AttachmentPaths.Add(newAttachment);
-                    }
-                }
-            }
-
-            var result = await IoTServiceMessages.Update(messageId, message);
-
-            if (result != null)
-            {
+                var result = await IoTServiceMessages.Update(messageId, newMessage);
                 return Ok(result);
             }
-            else
+            catch(Exception e)
             {
-                return Problem("Error updating message.");
+                return Problem(e.Message);
             }
+            
         }
 
         /// <summary>
@@ -176,21 +119,10 @@ namespace Tickets.TicketsMicroservice.Controllers
             var response = new GenericResponseDto();
             try
             {
-                var message = await IoTServiceMessages.Get(id);
-                if (message != null)
+                var result = await IoTServiceMessages.Remove(id);
+                if (result.Errors != null && result.Errors.Any())
                 {
-                    if (!message.AttachmentPaths.IsNullOrEmpty())
-                    {
-                        foreach(var attachment in message.AttachmentPaths)
-                        {
-                            await IoTServiceAttachments.Remove(attachment.Id);
-                        }
-                    }
-                    var result = await IoTServiceMessages.Remove(id);
-                    if (result.Errors != null && result.Errors.Any())
-                    {
-                        response.Error = new GenericErrorDto() { Id = ResponseCodes.DataError, Description = result.Errors.ToList().ToDisplayList(), Location = "Messages/Remove" };
-                    }
+                    response.Error = new GenericErrorDto() { Id = ResponseCodes.DataError, Description = result.Errors.ToList().ToDisplayList(), Location = "Messages/Remove" };
                 }
             }
             catch (Exception e)
@@ -211,22 +143,10 @@ namespace Tickets.TicketsMicroservice.Controllers
             var response = new GenericResponseDto();
             try
             {
-                var messages = await IoTServiceMessages.GetByTicket(ticketId);
-
-                foreach (var message in messages)
+                var result = await IoTServiceMessages.RemoveByTicket(ticketId);
+                if (result.Errors != null && result.Errors.Any())
                 {
-                    if (!message.AttachmentPaths.IsNullOrEmpty())
-                    {
-                        foreach (var attachment in message.AttachmentPaths)
-                        {
-                            await IoTServiceAttachments.Remove(attachment.Id);
-                        }
-                    }
-                    var result = await IoTServiceMessages.Remove(message.Id);
-                    if(result.Errors != null && result.Errors.Any())
-                    {
-                        response.Error = new GenericErrorDto() { Id = ResponseCodes.DataError, Description = result.Errors.ToList().ToDisplayList(), Location = "Messages/Remove" };
-                    }
+                    response.Error = new GenericErrorDto() { Id = ResponseCodes.DataError, Description = result.Errors.ToList().ToDisplayList(), Location = "Messages/Remove" };
                 }
             }
             catch(Exception e)
@@ -242,20 +162,16 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">el id de la incidencia</param>
         /// <returns>un <see cref="IEnumerable{T}"/> de <see cref="Message"/> con los mensajes de la incidencia</returns>
         [HttpGet("messages/getbyticket/{ticketId}")]
-        public async Task<ActionResult<IEnumerable<Message>>> GetByTicket(int ticketId)
+        public async Task<ActionResult<IEnumerable<MessageDto?>>> GetByTicket(int ticketId)
         {
-            var messages = await IoTServiceMessages.GetByTicket(ticketId);
-            if (messages == null)
+            try
             {
-                return BadRequest();
+                return await IoTServiceMessages.GetByTicket(ticketId);
             }
-
-            List<Message> result = new List<Message>();
-            for(int i = messages.Count - 1; i >= 0; i--)
+            catch (Exception e)
             {
-                result.Add(messages.ElementAt(i));
+                return Problem(e.Message);
             }
-            return result;
         }
 
         /// <summary>
@@ -266,49 +182,28 @@ namespace Tickets.TicketsMicroservice.Controllers
         [HttpGet("messages/download/{ticketId}/{attachmentPath}")]
         public IActionResult DownloadAttachment(string attachmentPath, int ticketId)
         {
-            string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
-            string filePath = Path.Combine(directoryPath, attachmentPath);
-
-            if (System.IO.File.Exists(filePath))
+            try
             {
-                byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+                string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
+                string filePath = Path.Combine(directoryPath, attachmentPath);
 
-                string contentType = "application/octet-stream";
+                if (System.IO.File.Exists(filePath))
+                {
+                    byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
 
-                return File(fileBytes, contentType, attachmentPath);
+                    string contentType = "application/octet-stream";
+
+                    return File(fileBytes, contentType, attachmentPath);
+                }
+                else
+                {
+                    return NotFound("Archivo no encontrado");
+                }
             }
-            else
+            catch (Exception e)
             {
-                return NotFound("Archivo no encontrado");
+                return Problem(e.Message);
             }
-        }
-
-        #endregion
-
-        #region Métodos privados
-
-        /// <summary>
-        ///     Guarda un archivo adjunto en el sistema de archivos
-        /// </summary>
-        /// <param name="attachment"><see cref="IFormFile"/> con los datos del archivo adjunto a guardar</param>
-        /// <returns>la ruta del archivo guardado</returns>
-        private async Task<string> SaveAttachmentToFileSystem(IFormFile attachment, int ticketId)
-        {
-            var fileName = Path.GetFileNameWithoutExtension(attachment.FileName) + "_" + Guid.NewGuid().ToString() + Path.GetExtension(attachment.FileName);
-            string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
-            string filePath = Path.Combine(directoryPath, fileName);
-
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await attachment.CopyToAsync(stream);
-            }
-
-            return filePath;
         }
 
         #endregion

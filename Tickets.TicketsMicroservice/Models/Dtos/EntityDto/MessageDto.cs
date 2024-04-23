@@ -1,34 +1,20 @@
-﻿namespace Tickets.MessagesMicroservice.Models.Dtos.EntityDto
+﻿namespace Tickets.TicketsMicroservice.Models.Dtos.EntityDto
 {
     public class MessageDto
     {
+        public int Id { get; set; }
         public string Author { get; set; }
         public string Content { get; set; }
-        public List<IFormFile?> Attachments { get; set; }
+        public DateTime Timestamp { get; set; }
+        public List<AttachmentDto?> AttachmentPaths { get; set; } = new List<AttachmentDto?>();
         public int TicketId { get; set; }
 
         public MessageDto()
         {
+            this.Id = 0;
             this.Author = string.Empty;
             this.Content = string.Empty;
-            this.Attachments = new List<IFormFile?>();
-            this.TicketId = 0;
-        }
-
-        public MessageDto(string author, string content, int ticketId)
-        {
-            this.Author = author;
-            this.Content = content;
-            this.Attachments = new List<IFormFile?>();
-            this.TicketId = ticketId;
-        }
-
-        public MessageDto(string author, string content, List<IFormFile?> attachments, int ticketId)
-        {
-            this.Author = author;
-            this.Content = content;
-            this.Attachments = attachments;
-            this.TicketId = ticketId;
+            this.Timestamp = DateTime.Now;
         }
     }
 }

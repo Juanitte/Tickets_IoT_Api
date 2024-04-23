@@ -10,6 +10,11 @@ using MimeKit;
 using Tickets.TicketsMicroservice.Translations;
 using Tickets.TicketsMicroservice.Models.Dtos.ResponseDto;
 using Tickets.TicketsMicroservice.Models.Dtos.FilterDto;
+using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
+using Microsoft.IdentityModel.Tokens;
+using Attachment = Tickets.TicketsMicroservice.Models.Entities.Attachment;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace Tickets.TicketsMicroservice.Services
 {
@@ -22,21 +27,21 @@ namespace Tickets.TicketsMicroservice.Services
         ///     Obtiene todas las incidencias
         /// </summary>
         /// <returns>una lista de incidencias <see cref="Ticket"/></returns>
-        public Task<List<Ticket>> GetAll();
+        public Task<List<TicketDto>> GetAll();
 
         /// <summary>
         ///     Obtiene la incidencia cuyo id se ha pasado como parámetro
         /// </summary>
         /// <param name="id">el id de la incidencia a buscar</param>
         /// <returns><see cref="Ticket"/> con los datos de la incidencia</returns>
-        public Task<Ticket> Get(int id);
+        public Task<TicketDto> Get(int id);
 
         /// <summary>
         ///     Crea una nueva incidencia
         /// </summary>
         /// <param name="ticket"><see cref="Ticket"/> con los datos de la incidencia</param>
         /// <returns><see cref="Ticket"/> con los datos de la incidencia</returns>
-        public Task<Ticket> Create(Ticket ticket);
+        public Task<CreateEditRemoveResponseDto> Create(CreateTicketDto createTicket);
 
         /// <summary>
         ///     Actualiza los datos de una incidencia
@@ -44,7 +49,7 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="ticketId">el id de la incidencia</param>
         /// <param name="ticket"><see cref="Ticket"/> con los datos modificados de la incidencia</param>
         /// <returns></returns>
-        public Task<Ticket> Update(int ticketId, Ticket ticket);
+        public Task<CreateEditRemoveResponseDto> Update(int ticketId, CreateTicketDataDto ticket);
 
         /// <summary>
         ///     Elimina la incidencia cuyo id se ha pasado como parámetro
@@ -67,7 +72,7 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="ticketId">el id de la incidencia</param>
         /// <param name="state">el nuevo estado de la incidencia</param>
         /// <returns></returns>
-        public Task<bool> ChangeState(int ticketId, States state);
+        public Task<bool> ChangeStatus(int ticketId, Status status);
 
         /// <summary>
         ///     Asigna la incidencia cuyo id se pasa como parámetro al usuario cuyo id se pasa como parámetro
@@ -82,7 +87,7 @@ namespace Tickets.TicketsMicroservice.Services
         /// </summary>
         /// <param name="userId">el id del usuario</param>
         /// <returns>una lista con las incidencias asignadas al usuario <see cref="Ticket"/></returns>
-        public Task<List<Ticket?>> GetByUser(int userId);
+        public IEnumerable<Ticket> GetByUser(int userId);
 
         /// <summary>
         ///     Obtiene los tickets filtrados
@@ -124,7 +129,7 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     if (!ticket.IsAsigned)
                     {
-                        ticket.State = States.OPENED.ToString();
+                        ticket.Status = Status.OPENED;
                         ticket.IsAsigned = true;
                     }
                     ticket.UserId = userId;
@@ -154,7 +159,7 @@ namespace Tickets.TicketsMicroservice.Services
                 var ticket = await _unitOfWork.TicketsRepository.Get(ticketId);
                 if (ticket != null)
                 {
-                    ticket.Priority = priority.ToString();
+                    ticket.Priority = priority;
                     _unitOfWork.TicketsRepository.Update(ticket);
                     await _unitOfWork.SaveChanges();
                     return true;
@@ -174,14 +179,14 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="ticketId">el id de la incidencia</param>
         /// <param name="state">el nuevo estado de la incidencia</param>
         /// <returns></returns>
-        public async Task<bool> ChangeState(int ticketId, States state)
+        public async Task<bool> ChangeStatus(int ticketId, Status status)
         {
             try
             {
                 var ticket = await _unitOfWork.TicketsRepository.Get(ticketId);
                 if (ticket != null)
                 {
-                    ticket.State = state.ToString();
+                    ticket.Status = status;
                     _unitOfWork.TicketsRepository.Update(ticket);
                     await _unitOfWork.SaveChanges();
                     return true;
@@ -200,13 +205,52 @@ namespace Tickets.TicketsMicroservice.Services
         /// </summary>
         /// <param name="ticket"><see cref="Ticket"/> con los datos de la incidencia</param>
         /// <returns><see cref="Ticket"/> con los datos de la incidencia</returns>
-        public async Task<Ticket> Create(Ticket ticket)
+        public async Task<CreateEditRemoveResponseDto> Create(CreateTicketDto createTicket)
         {
             try
             {
-                var t = Task.FromResult(_unitOfWork.TicketsRepository.Add(ticket));
-                await _unitOfWork.SaveChanges();
-                return t.Result;
+                var response = new CreateEditRemoveResponseDto();
+
+                var ticket = new Ticket(createTicket.TicketDto.Title, createTicket.TicketDto.Name, createTicket.TicketDto.Email);
+
+                if (createTicket.MessageDto != null)
+                {
+
+                    if (_unitOfWork.TicketsRepository.Add(ticket) != null)
+                    {
+                        await _unitOfWork.SaveChanges();
+                        response.IsSuccess(ticket.Id);
+                        var message = new Message(createTicket.MessageDto.Content, createTicket.MessageDto.Author, ticket.Id);
+
+
+
+                        if (!createTicket.MessageDto.Attachments.IsNullOrEmpty())
+                        {
+                            foreach (var attachment in createTicket.MessageDto.Attachments)
+                            {
+                                if (attachment != null)
+                                {
+                                    string attachmentPath = await SaveAttachmentToFileSystem(attachment, ticket.Id);
+                                    Attachment newAttachment = new Attachment(attachmentPath, message.Id);
+                                    message.AttachmentPaths.Add(newAttachment);
+                                }
+                            }
+                        }
+
+                        ticket.Messages.Add(message);
+
+                        _unitOfWork.TicketsRepository.Update(ticket);
+                        string hashedId = Hash(ticket.Id.ToString());
+
+                        var isSent = SendMail(ticket.Email, string.Concat("http://localhost:4200/enlace/", hashedId, "/", ticket.Id));
+                    }
+                }
+                else
+                {
+                    response.Id = ticket.Id;
+                    response.Errors = new List<string> { "Couldn't create ticket" };
+                }
+                return response;
             }
             catch(Exception e)
             {
@@ -232,12 +276,13 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     await _unitOfWork.TicketsRepository.Remove(ticketId);
                     await _unitOfWork.SaveChanges();
+                    response.IsSuccess(ticketId);
                 }
                 else
                 {
+                    response.Id = ticketId;
                     response.Errors = new List<string> { "Ticket not found" };
                 }
-                response.Id = ticketId;
                 return response;
             }
             catch (Exception e)
@@ -252,11 +297,11 @@ namespace Tickets.TicketsMicroservice.Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Ticket> Get(int id)
+        public async Task<TicketDto> Get(int id)
         {
             try
             {
-                return await Task.FromResult(_unitOfWork.TicketsRepository.GetFirst(g => g.Id.Equals(id)));
+                return await Task.FromResult(Extensions.ConvertModel(_unitOfWork.TicketsRepository.GetFirst(g => g.Id.Equals(id)), new TicketDto()));
             }
             catch (Exception e)
             {
@@ -269,11 +314,22 @@ namespace Tickets.TicketsMicroservice.Services
         ///     Obtiene todas las incidencias
         /// </summary>
         /// <returns></returns>
-        public async Task<List<Ticket>> GetAll()
+        public async Task<List<TicketDto>> GetAll()
         {
             try
             {
-                return await _unitOfWork.TicketsRepository.GetAll().ToListAsync();
+                var tickets = await _unitOfWork.TicketsRepository.GetAll().ToListAsync();
+                List<TicketDto> result = new List<TicketDto>();
+                foreach (var ticket in tickets)
+                {
+                    result.Add(Extensions.ConvertModel(ticket, new TicketDto()));
+                    var messages = await _unitOfWork.MessagesRepository.GetAll().Where(message => message.TicketId == ticket.Id).ToListAsync();
+                    foreach(var message in messages)
+                    {
+                        result.Last().Messages.Add(Extensions.ConvertModel(message, new MessageDto()));
+                    }
+                }
+                return result;
             }
             catch (Exception e)
             {
@@ -283,7 +339,7 @@ namespace Tickets.TicketsMicroservice.Services
         }
 
         /// <summary>
-        ///     Obtiene los tickets filtrados
+        ///     Obtiene las incidencias filtradas
         /// </summary>
         /// <returns></returns>
         public async Task<ResponseFilterTicketDto> GetAllFilter(TicketFilterRequestDto filter)
@@ -292,136 +348,50 @@ namespace Tickets.TicketsMicroservice.Services
             {
 
                 var response = new ResponseFilterTicketDto();
-                var byState = new ResponseFilterTicketDto();
-                var byPriority = new ResponseFilterTicketDto();
-                var byUser = new ResponseFilterTicketDto();
-                var byStartDate = new ResponseFilterTicketDto();
-                var byEndDate = new ResponseFilterTicketDto();
-                var bySearchString = new ResponseFilterTicketDto();
 
                 //Obtener incidencias filtradas por estado
-                if (filter.State == -1)
-                {
-                    var filteredByState = _unitOfWork.TicketsRepository.GetAll();
-                    byState.Tickets = filteredByState.Select(s => s.ToResumeDto()).ToList();
-                }
-                else
-                {
-                    var filteredByState = _unitOfWork.TicketsRepository.GetFiltered("State", ((States)filter.State).ToString(), FilterType.equals);
-                    byState.Tickets = filteredByState.Select(s => s.ToResumeDto()).ToList();
-                }
+                var byStatusQuery = filter.Status == -1
+                    ? _unitOfWork.TicketsRepository.GetAll()
+                    : _unitOfWork.TicketsRepository.GetFiltered("Status", filter.Status, FilterType.equals);
 
-                //Obtener incidencias filtradas por prioridad
-                if (filter.Priority == -1)
-                {
-                    var filteredByPriority = _unitOfWork.TicketsRepository.GetAll();
-                    byPriority.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
-                }
-                else
-                {
-                    var filteredByPriority = _unitOfWork.TicketsRepository.GetFiltered("Priority", ((Priorities)filter.Priority).ToString(), FilterType.equals);
-                    byPriority.Tickets = filteredByPriority.Select(s => s.ToResumeDto()).ToList();
-                }
+                // Filtrar por prioridad
+                var byPriorityQuery = filter.Priority == -1
+                    ? _unitOfWork.TicketsRepository.GetAll()
+                    : _unitOfWork.TicketsRepository.GetFiltered("Priority", filter.Priority, FilterType.equals);
 
-                //Obtener incidencias filtradas por id de técnico
-                if (filter.UserId == 0)
-                {
-                    var filteredByUser = _unitOfWork.TicketsRepository.GetAll();
-                    byUser.Tickets = filteredByUser.Select(s => s.ToResumeDto()).ToList();
-                }
-                else
-                {
-                    var filteredByUser = await GetByUser(filter.UserId);
-                    byUser.Tickets = filteredByUser.Select(s => s.ToResumeDto()).ToList();
-                }
+                // Filtrar por id de técnico
+                var byUserQuery = filter.UserId == 0
+                    ? _unitOfWork.TicketsRepository.GetAll()
+                    : GetByUser(filter.UserId).AsQueryable();
 
-                //Obtener incidencias filtradas por fecha
-                if(filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1)))
-                {
-                    var filteredByStartDate = _unitOfWork.TicketsRepository.GetAll();
-                    byStartDate.Tickets = filteredByStartDate.Select(s => s.ToResumeDto()).ToList();
+                // Filtrar por fecha
+                var byStartDateQuery = filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1))
+                    ? _unitOfWork.TicketsRepository.GetAll()
+                    : _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.Timestamp <= filter.End);
 
-                    var filteredByEndDate = _unitOfWork.TicketsRepository.GetAll();
-                    byEndDate.Tickets = filteredByEndDate.Select(s => s.ToResumeDto()).ToList();
-                }
-                else
-                {
-                    //Obtener incidencias filtradas por fecha inicial
-                    var filteredByStartDate = _unitOfWork.TicketsRepository.GetAll();
-                    byStartDate.Tickets = filteredByStartDate.Where(ticket => ticket.Timestamp <= filter.End).Select(s => s.ToResumeDto()).ToList();
+                var byEndDateQuery = filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1))
+                    ? _unitOfWork.TicketsRepository.GetAll()
+                    : _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.Timestamp >= filter.Start);
 
-                    //Obtener incidencias filtradas por fecha final
-                    var filteredByEndDate = _unitOfWork.TicketsRepository.GetAll();
-                    byEndDate.Tickets = filteredByEndDate.Where(ticket => ticket.Timestamp >= filter.Start).Select(s => s.ToResumeDto()).ToList();
-                }
+                // Filtrar por texto introducido
+                var bySearchStringQuery = string.IsNullOrEmpty(filter.SearchString)
+                    ? _unitOfWork.TicketsRepository.GetAll()
+                    : _unitOfWork.TicketsRepository.GetFiltered(filter.SearchString);
 
-                //Obtener incidencias filtradas por texto introducido
-                if (filter.SearchString == null || filter.SearchString.Equals(""))
-                {
-                    var filteredBySearchString = _unitOfWork.TicketsRepository.GetAll();
-                    bySearchString.Tickets = filteredBySearchString.Where(ticket => ticket != null).Select(s => s.ToResumeDto()).ToList();
-                }
-                else
-                {
-                    var filteredBySearchString = _unitOfWork.TicketsRepository.GetFiltered(filter.SearchString);
-                    bySearchString.Tickets = filteredBySearchString.Items.Where(ticket => ticket != null).Select(s => s.ToResumeDto()).ToList();
-                }
+                // Unir todas las consultas filtradas
+                var filteredTickets = await Task.WhenAll(
+                    byStatusQuery.Select(s => s.ToResumeDto()).ToListAsync(),
+                    byPriorityQuery.Select(s => s.ToResumeDto()).ToListAsync(),
+                    byUserQuery.Select(s => s.ToResumeDto()).ToListAsync(),
+                    byStartDateQuery.Select(s => s.ToResumeDto()).ToListAsync(),
+                    byEndDateQuery.Select(s => s.ToResumeDto()).ToListAsync(),
+                    bySearchStringQuery.Select(s => s.ToResumeDto()).ToListAsync()
+                );
 
-                //Comparar las incidencias filtradas y devolver las coincidencias
+                // Encontrar la intersección de todas las listas filtradas
+                response.Tickets = filteredTickets
+                    .Aggregate((previousList, nextList) => previousList.Intersect(nextList).ToList());
 
-                    //Separar la lista más larga de las demás
-                var filteredResponses = new List<ResponseFilterTicketDto>
-                {
-                    byState,
-                    byPriority,
-                    byUser,
-                    byStartDate,
-                    byEndDate,
-                    bySearchString
-                };
-
-                var largerResponse = new ResponseFilterTicketDto();
-                var count = -1;
-                foreach (var r in filteredResponses)
-                {
-
-                    if(r.Tickets.Count > count)
-                    {
-                        largerResponse = r;
-                        count = r.Tickets.Count;
-                    }
-                }
-                filteredResponses.Remove(largerResponse);
-
-                //Comprobar si cada incidencia se encuentra en todas las listas
-                foreach(var t in largerResponse.Tickets)
-                {
-                    bool isIn = true;
-                    foreach (var r in filteredResponses)
-                    {
-                        foreach(var ticket in r.Tickets)
-                        {
-                            if (ticket.Id != t.Id)
-                            {
-                                isIn = false;
-                            }else
-                            {
-                                isIn = true;
-                                break;
-                            }
-                        }
-                        if (!isIn)
-                        {
-                            break;
-                        }
-                    }
-                    if (isIn)
-                    {
-                        response.Tickets.Add(t);
-                    }
-                }
-
-                //Devuelve las incidencias que cumplan todos los filtros
                 return response;
             }
             catch (Exception ex)
@@ -436,27 +406,12 @@ namespace Tickets.TicketsMicroservice.Services
         /// </summary>
         /// <param name="userId">el id del usuario</param>
         /// <returns>una lista con las incidencias <see cref="Ticket"/></returns>
-        public async Task<List<Ticket?>> GetByUser(int userId)
+        public IEnumerable<Ticket> GetByUser(int userId)
         {
             try
             {
-                var tickets = await _unitOfWork.TicketsRepository.GetAll().ToListAsync();
-                var result = new List<Ticket>();
-                if (tickets != null)
-                {
-                    foreach (var ticket in tickets)
-                    {
-                        if (ticket != null)
-                        {
-                            if (ticket.UserId == userId)
-                            {
-                                result.Add(ticket);
-                            }
-                        }
-                    }
-                    return result;
-                }
-                return null;
+                var tickets = _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.UserId == userId).ToList();
+                return tickets;
             }
             catch (Exception e)
             {
@@ -471,24 +426,29 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="ticketId">el id de la incidencia</param>
         /// <param name="ticket"><see cref="Ticket"/> con los datos de la nueva incidencia</param>
         /// <returns></returns>
-        public async Task<Ticket> Update(int ticketId, Ticket newTicket)
+        public async Task<CreateEditRemoveResponseDto> Update(int ticketId, CreateTicketDataDto newTicket)
         {
             try
             {
+                var response = new CreateEditRemoveResponseDto();
                 Ticket ticket = await _unitOfWork.TicketsRepository.Get(ticketId);
-                ticket.Email = newTicket.Email;
-                ticket.Title = newTicket.Title;
-                ticket.Name = newTicket.Name;
-                ticket.Priority = newTicket.Priority;
-                ticket.State = newTicket.State;
-                ticket.UserId = newTicket.UserId;
-                ticket.IsAsigned = newTicket.IsAsigned;
-                ticket.HasNewMessages = newTicket.HasNewMessages;
-                ticket.newMessagesCount = newTicket.newMessagesCount;
+                if (ticket != null)
+                {
+                    ticket.Email = newTicket.Email;
+                    ticket.Title = newTicket.Title;
+                    ticket.Name = newTicket.Name;
+                    ticket.HasNewMessages = newTicket.HasNewMessages;
 
-                _unitOfWork.TicketsRepository.Update(ticket);
-                await _unitOfWork.SaveChanges();
-                return ticket;
+                    _unitOfWork.TicketsRepository.Update(ticket);
+                    await _unitOfWork.SaveChanges();
+                    response.IsSuccess(ticketId);
+                }
+                else
+                {
+                    response.Id = ticketId;
+                    response.Errors = new List<string> { "Ticket not found" };
+                }
+                return response;
             }
             catch (Exception e)
             {
@@ -525,6 +485,53 @@ namespace Tickets.TicketsMicroservice.Services
             {
                 _logger.LogError("Send Mail => ", e);
                 return false;
+            }
+        }
+
+        #endregion
+
+        #region Métodos privados
+
+        /// <summary>
+        ///     Guarda un archivo adjunto en el sistema de archivos
+        /// </summary>
+        /// <param name="attachment"><see cref="IFormFile"/> con los datos del archivo adjunto a guardar</param>
+        /// <returns>la ruta del archivo guardado</returns>
+        private async Task<string> SaveAttachmentToFileSystem(IFormFile attachment, int ticketId)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(attachment.FileName) + "_" + Guid.NewGuid().ToString() + Path.GetExtension(attachment.FileName);
+            string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
+            string filePath = Path.Combine(directoryPath, fileName);
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await attachment.CopyToAsync(stream);
+            }
+
+            return filePath;
+        }
+
+        /// <summary>
+        ///     Hashea un texto
+        /// </summary>
+        /// <param name="text">el texto a hashear</param>
+        /// <returns></returns>
+        public static string Hash(string text)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
 

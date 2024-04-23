@@ -186,10 +186,9 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
         /// <param name="orderField">Campo de ordenación</param>
         /// <param name="orderType"><see cref="OrderType"/> con la dirección de ordenación</param>
         /// <returns>Collección no modificable de elementos del tipo <see cref="T"/></returns>
-        public virtual ResponseGetFilteredDto<T> GetFiltered(string searchString, Expression<Func<T, bool>> filter = null, Expression<Func<T, object>>[] includes = null)
+        public virtual IQueryable<T> GetFiltered(string searchString, Expression<Func<T, bool>> filter = null, Expression<Func<T, object>>[] includes = null)
         {
             IQueryable<T> objects = null;
-            ResponseGetFilteredDto<T> response = new ResponseGetFilteredDto<T>();
 
             if (filter != null)
                 objects = _dbSet.Where(filter).AsQueryable();
@@ -218,10 +217,8 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
                 }
             }
 
-            response.Items = objects;
-            response.TotalFields = objects.Count();
 
-            return response;
+            return objects;
         }
 
         /// <summary>
@@ -231,7 +228,7 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
         /// <param name="value">Valor por el que filtrar</param>
         /// <param name="filterType">Condición a aplicar</param>
         /// <returns>Collección no modificable de elementos del tipo <see cref="T"/></returns>
-        public virtual IReadOnlyCollection<T> GetFiltered(string propertyName, object value, FilterType? filterType = FilterType.equals)
+        public virtual IQueryable<T> GetFiltered(string propertyName, object value, FilterType? filterType = FilterType.equals)
         {
             var propertyInfo = typeof(T).GetProperty(propertyName);
             if (propertyInfo != null)
@@ -241,41 +238,41 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
 
                         //Operador de igualdad (por defecto)
                         case FilterType.equals:
-                            return _dbSet.Where(PropertyEquals<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+                            return _dbSet.Where(PropertyEquals<T>(propertyInfo, value))?.ToList()?.AsQueryable();
 
                         //Operador de desigualdad
                         case FilterType.notEquals:
-                            return _dbSet.Where(PropertyNotEquals<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+                            return _dbSet.Where(PropertyNotEquals<T>(propertyInfo, value))?.ToList()?.AsQueryable();
 
                         //Operador menor que
                         case FilterType.lessThan:
-                            return _dbSet.Where(PropertyLessThan<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+                            return _dbSet.Where(PropertyLessThan<T>(propertyInfo, value))?.ToList()?.AsQueryable();
 
                         //Operador menor o igual que
                         case FilterType.lessThanEqual:
-                            return _dbSet.Where(PropertyLessThanOrEqual<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+                            return _dbSet.Where(PropertyLessThanOrEqual<T>(propertyInfo, value))?.ToList()?.AsQueryable();
 
                         //Operador mayor que
                         case FilterType.greatherThan:
-                            return _dbSet.Where(PropertyGreaterThan<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+                            return _dbSet.Where(PropertyGreaterThan<T>(propertyInfo, value))?.ToList()?.AsQueryable();
 
                         //Operador mayor o igual que
                         case FilterType.greatherThanEqual:
-                            return _dbSet.Where(PropertyGreaterThanOrEqual<T>(propertyInfo, value))?.ToList()?.AsReadOnly();
+                            return _dbSet.Where(PropertyGreaterThanOrEqual<T>(propertyInfo, value))?.ToList()?.AsQueryable();
 
                         //Operador nulo
                         case FilterType.isNullOrEmpty:
-                            return _dbSet.Where(PropertyEquals<T>(propertyInfo, value)).ToList()?.AsReadOnly(); //Todo:
+                            return _dbSet.Where(PropertyEquals<T>(propertyInfo, value)).ToList()?.AsQueryable(); //Todo:
 
                         //Operador contiene
                         case FilterType.contains:
                             //Si el valor es nulo, esta en blanco o solo contiene espacios se devuelven todos los elementos
                             if (value == null || string.IsNullOrEmpty(value.ToString()) || string.IsNullOrWhiteSpace(value.ToString()))
-                                return _dbSet.AsNoTracking().ToList().AsReadOnly();
+                                return _dbSet.AsNoTracking().ToList().AsQueryable();
 
                             var stringValue = value.ToString()?.ToUpper();
                             //Todo: Solo funciona con strings
-                            return _dbSet.Where(PropertyContains<T>(propertyInfo, stringValue)).ToList()?.AsReadOnly();
+                            return _dbSet.Where(PropertyContains<T>(propertyInfo, stringValue)).ToList()?.AsQueryable();
                     }
                 }
                 throw new ArgumentException(string.Format("El campo {0} no posee el tipo de filtrado {1}", propertyName, filterType));

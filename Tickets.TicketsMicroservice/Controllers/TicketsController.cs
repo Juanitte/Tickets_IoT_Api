@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
-using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Dtos.FilterDto;
 using Tickets.TicketsMicroservice.Models.Dtos.ResponseDto;
 using Tickets.TicketsMicroservice.Models.Entities;
@@ -41,15 +40,11 @@ namespace Tickets.TicketsMicroservice.Controllers
             try
             {
                 var tickets = await IoTServiceTickets.GetAll();
-                foreach (var ticket in tickets)
-                {
-                    ticket.Messages = await IoTServiceMessages.GetByTicket(ticket.Id);
-                }
                 return new JsonResult(tickets);
             }
             catch (Exception e)
             {
-                return new JsonResult(new List<TicketDto>());
+                return new JsonResult(new List<CreateTicketDataDto>());
             }
         }
 
@@ -90,7 +85,7 @@ namespace Tickets.TicketsMicroservice.Controllers
             }
             catch (Exception e)
             {
-                return new JsonResult(new TicketDto());
+                return new JsonResult(new CreateTicketDataDto());
             }
         }
 
@@ -102,71 +97,43 @@ namespace Tickets.TicketsMicroservice.Controllers
         [HttpPost("tickets/create")]
         public async Task<IActionResult> Create([FromForm] CreateTicketDto createTicket)
         {
-
-            var ticket = new Ticket(createTicket.TicketDto.Title, createTicket.TicketDto.Name, createTicket.TicketDto.Email);
-
-
-            var result = await IoTServiceTickets.Create(ticket);
-
-
-            if (createTicket.MessageDto != null)
+            try
             {
-                var message = new Message(createTicket.MessageDto.Content, createTicket.MessageDto.Author, result.Id);
+                var result = await IoTServiceTickets.Create(createTicket);
 
-
-
-                if (!createTicket.MessageDto.Attachments.IsNullOrEmpty())
-                {
-                    foreach (var attachment in createTicket.MessageDto.Attachments)
-                    {
-                        if (attachment != null)
-                        {
-                            string attachmentPath = await SaveAttachmentToFileSystem(attachment, result.Id);
-                            Attachment newAttachment = new Attachment(attachmentPath, message.Id);
-                            message.AttachmentPaths.Add(newAttachment);
-                        }
-                    }
-                }
-                result.Messages.Add(message);
-
-                result = await IoTServiceTickets.Update(result.Id, result);
-                string hashedId = Hash(result.Id.ToString());
-
-                var isSent = IoTServiceTickets.SendMail(result.Email, string.Concat("http://localhost:4200/enlace/", hashedId, "/", result.Id));
+                return Ok(result);
             }
-
-            return Ok(result);
+            catch (Exception e)
+            {
+                return Problem(e.Message);
+            }
         }
 
         /// <summary>
         ///     Método que actualiza una incidencia con id proporcionado como parámetro
         /// </summary>
         /// <param name="ticketId">El id de la incidencia a editar</param>
-        /// <param name="ticket"><see cref="TicketDto"/> con los nuevos datos de la incidencia</param>
+        /// <param name="ticket"><see cref="CreateTicketDataDto"/> con los nuevos datos de la incidencia</param>
         /// <returns></returns>
         [HttpPut("tickets/update/{ticketId}")]
-        public async Task<IActionResult> Update(int ticketId, [FromBody] TicketDto newTicket)
+        public async Task<IActionResult> Update(int ticketId, [FromBody] CreateTicketDataDto newTicket)
         {
-            Ticket ticket = await IoTServiceTickets.Get(ticketId);
-            if (ticket == null)
+            try
             {
-                return BadRequest();
-            }
-            ticket.Title = newTicket.Title;
-            ticket.Name = newTicket.Name;
-            ticket.Email = newTicket.Email;
-            ticket.HasNewMessages = newTicket.HasNewMessages;
-            ticket.newMessagesCount = newTicket.NewMessagesCount;
+                var result = await IoTServiceTickets.Update(ticketId, newTicket);
 
-            var result = await IoTServiceTickets.Update(ticketId, ticket);
-
-            if (result != null)
-            {
-                return Ok(result);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return Problem("Error updating user.");
+                }
             }
-            else
+            catch (Exception e)
             {
-                return Problem("Error updating user.");
+                return Problem(e.Message);
             }
         }
 
@@ -195,10 +162,10 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="state">el valor del estado</param>
         /// <returns></returns>
         [HttpPut("tickets/changestate/{ticketId}/{state}")]
-        public async Task<IActionResult> ChangeState(int ticketId, int state)
+        public async Task<IActionResult> ChangeState(int ticketId, int status)
         {
 
-            var result = await IoTServiceTickets.ChangeState(ticketId, (States)state);
+            var result = await IoTServiceTickets.ChangeStatus(ticketId, (Status)status);
             if (result)
             {
                 return Ok();
@@ -259,59 +226,12 @@ namespace Tickets.TicketsMicroservice.Controllers
         {
             try
             {
-                var tickets = await IoTServiceTickets.GetByUser(userId);
+                var tickets = IoTServiceTickets.GetByUser(userId);
                 return new JsonResult(tickets);
             }
             catch (Exception e)
             {
-                return new JsonResult(new TicketDto());
-            }
-        }
-
-        #endregion
-
-        #region Métodos privados
-
-        /// <summary>
-        ///     Guarda un archivo adjunto en el sistema de archivos
-        /// </summary>
-        /// <param name="attachment"><see cref="IFormFile"/> con los datos del archivo adjunto a guardar</param>
-        /// <returns>la ruta del archivo guardado</returns>
-        private async Task<string> SaveAttachmentToFileSystem(IFormFile attachment, int ticketId)
-        {
-            var fileName = Path.GetFileNameWithoutExtension(attachment.FileName) + "_" + Guid.NewGuid().ToString() + Path.GetExtension(attachment.FileName);
-            string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
-            string filePath = Path.Combine(directoryPath, fileName);
-
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await attachment.CopyToAsync(stream);
-            }
-
-            return filePath;
-        }
-
-        /// <summary>
-        ///     Hashea un texto
-        /// </summary>
-        /// <param name="text">el texto a hashear</param>
-        /// <returns></returns>
-        public static string Hash(string text)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
-                StringBuilder builder = new StringBuilder();
-                foreach (byte b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
+                return new JsonResult(new CreateTicketDataDto());
             }
         }
 
