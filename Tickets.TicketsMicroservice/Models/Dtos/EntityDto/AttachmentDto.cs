@@ -2,19 +2,16 @@
 {
     public class AttachmentDto
     {
+        public int Id { get; set; }
         public string Path { get; set; }
-        public int MessageID { get; set; }
+        public int MessageId { get; set; }
 
         public AttachmentDto()
         {
+            this.Id = 0;
             this.Path = string.Empty;
-            this.MessageID = 0;
+            this.MessageId = 0;
         }
 
-        public AttachmentDto(string path, int messageID)
-        {
-            this.Path = path;
-            this.MessageID = messageID;
-        }
     }
 }

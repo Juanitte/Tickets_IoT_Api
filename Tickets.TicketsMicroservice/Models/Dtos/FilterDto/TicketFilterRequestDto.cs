@@ -6,7 +6,7 @@ namespace Tickets.TicketsMicroservice.Models.Dtos.FilterDto
     {
         public int UserId { get; set; }
         public int Priority { get; set; }
-        public int State { get; set; }
+        public int Status { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
     }

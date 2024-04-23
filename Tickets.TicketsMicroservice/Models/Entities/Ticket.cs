@@ -23,8 +23,8 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public string Email { get; set; }
         public DateTime Timestamp { get; set; }
         public int? UserId { get; set; }
-        public string Priority { get; set; }
-        public string State { get; set; }
+        public Priorities Priority { get; set; }
+        public Status Status { get; set; }
 
         public bool IsAsigned { get; set; }
         public bool HasNewMessages { get; set; }
@@ -38,8 +38,8 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Email = string.Empty;
             this.Timestamp = DateTime.Now;
             this.UserId = -1;
-            this.Priority = Priorities.NOT_SURE.ToString();
-            this.State = States.PENDING.ToString();
+            this.Priority = Priorities.NOT_SURE;
+            this.Status = Status.PENDING;
             this.IsAsigned = false;
             this.HasNewMessages = true;
             this.newMessagesCount = 1;
@@ -51,8 +51,8 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Email = email;
             this.Timestamp = DateTime.Now;
             this.UserId = -1;
-            this.Priority = Priorities.NOT_SURE.ToString();
-            this.State = States.PENDING.ToString();
+            this.Priority = Priorities.NOT_SURE;
+            this.Status = Status.PENDING;
             this.IsAsigned = false;
             this.HasNewMessages = true;
             this.newMessagesCount = 1;
@@ -65,8 +65,8 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Email = string.Empty;
             this.Timestamp = DateTime.Now;
             this.UserId = -1;
-            this.Priority = Priorities.NOT_SURE.ToString();
-            this.State = States.PENDING.ToString();
+            this.Priority = Priorities.NOT_SURE;
+            this.Status = Status.PENDING;
             this.Messages.Add(message);
             this.IsAsigned = false;
             this.HasNewMessages = true;
@@ -79,8 +79,8 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Email = email;
             this.Timestamp = DateTime.Now;
             this.UserId = -1;
-            this.Priority = Priorities.NOT_SURE.ToString();
-            this.State = States.PENDING.ToString();
+            this.Priority = Priorities.NOT_SURE;
+            this.Status = Status.PENDING;
             this.Messages.Add(message);
             this.IsAsigned = false;
             this.HasNewMessages = true;

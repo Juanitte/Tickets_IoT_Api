@@ -46,7 +46,7 @@ namespace Common.Utilities
     /// <summary>
     ///     Tipos de estados de incidencia
     /// </summary>
-    public enum States
+    public enum Status
     {
         PENDING = 0,
         OPENED = 1,
