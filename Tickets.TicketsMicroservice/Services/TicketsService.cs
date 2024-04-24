@@ -319,16 +319,24 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var tickets = await _unitOfWork.TicketsRepository.GetAll().ToListAsync();
+                Console.WriteLine("Tickets");
+                Console.WriteLine(tickets.Count);
                 List<TicketDto> result = new List<TicketDto>();
                 foreach (var ticket in tickets)
                 {
                     result.Add(Extensions.ConvertModel(ticket, new TicketDto()));
                     var messages = await _unitOfWork.MessagesRepository.GetAll().Where(message => message.TicketId == ticket.Id).ToListAsync();
-                    foreach(var message in messages)
+                    Console.WriteLine("Messages");
+                    Console.WriteLine(messages.Count);
+                    foreach (var message in messages)
                     {
                         result.Last().Messages.Add(Extensions.ConvertModel(message, new MessageDto()));
                     }
+                    Console.WriteLine("MessageDtos");
+                    Console.WriteLine(result.Last().Messages.Count);
                 }
+                Console.WriteLine("TicketDtos");
+                Console.WriteLine(result.Count);
                 return result;
             }
             catch (Exception e)
@@ -411,6 +419,8 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var tickets = _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.UserId == userId).ToList();
+                Console.WriteLine("Tickets");
+                Console.WriteLine(tickets.Count);
                 return tickets;
             }
             catch (Exception e)

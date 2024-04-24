@@ -40,6 +40,9 @@ namespace Tickets.TicketsMicroservice.Controllers
             try
             {
                 var tickets = await IoTServiceTickets.GetAll();
+
+                Console.WriteLine("Tickets");
+                Console.WriteLine(tickets.Count);
                 return new JsonResult(tickets);
             }
             catch (Exception e)
@@ -227,6 +230,8 @@ namespace Tickets.TicketsMicroservice.Controllers
             try
             {
                 var tickets = IoTServiceTickets.GetByUser(userId);
+                Console.WriteLine("Tickets");
+                Console.WriteLine(tickets.Count());
                 return new JsonResult(tickets);
             }
             catch (Exception e)
