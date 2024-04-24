@@ -1,10 +1,12 @@
-﻿namespace Tickets.UsersMicroservice.Models.Dtos.EntityDto
+﻿using Common.Utilities;
+
+namespace Tickets.UsersMicroservice.Models.Dtos.EntityDto
 {
     public class UserDto
     {
         public int Id { get; set; }
         public string FullName { get; set; }
-        public int Language { get; set; }
+        public Language Language { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
