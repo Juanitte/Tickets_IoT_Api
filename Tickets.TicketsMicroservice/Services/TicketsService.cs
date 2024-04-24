@@ -319,24 +319,16 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var tickets = await _unitOfWork.TicketsRepository.GetAll().ToListAsync();
-                Console.WriteLine("Tickets");
-                Console.WriteLine(tickets.Count);
                 List<TicketDto> result = new List<TicketDto>();
                 foreach (var ticket in tickets)
                 {
                     result.Add(Extensions.ConvertModel(ticket, new TicketDto()));
                     var messages = await _unitOfWork.MessagesRepository.GetAll().Where(message => message.TicketId == ticket.Id).ToListAsync();
-                    Console.WriteLine("Messages");
-                    Console.WriteLine(messages.Count);
                     foreach (var message in messages)
                     {
                         result.Last().Messages.Add(Extensions.ConvertModel(message, new MessageDto()));
                     }
-                    Console.WriteLine("MessageDtos");
-                    Console.WriteLine(result.Last().Messages.Count);
                 }
-                Console.WriteLine("TicketDtos");
-                Console.WriteLine(result.Count);
                 return result;
             }
             catch (Exception e)
@@ -354,51 +346,71 @@ namespace Tickets.TicketsMicroservice.Services
         {
             try
             {
-
                 var response = new ResponseFilterTicketDto();
 
                 //Obtener incidencias filtradas por estado
-                var byStatusQuery = filter.Status == -1
+                var byStatusQuery = (int)filter.Status == -1
                     ? _unitOfWork.TicketsRepository.GetAll()
                     : _unitOfWork.TicketsRepository.GetFiltered("Status", filter.Status, FilterType.equals);
+                Console.WriteLine("ByStatusQuery");
+                Console.WriteLine(byStatusQuery.Count());
 
                 // Filtrar por prioridad
-                var byPriorityQuery = filter.Priority == -1
+                var byPriorityQuery = (int)filter.Priority == -1
                     ? _unitOfWork.TicketsRepository.GetAll()
                     : _unitOfWork.TicketsRepository.GetFiltered("Priority", filter.Priority, FilterType.equals);
+                Console.WriteLine("ByPriorityQuery");
+                Console.WriteLine(byPriorityQuery.Count());
 
                 // Filtrar por id de técnico
                 var byUserQuery = filter.UserId == 0
                     ? _unitOfWork.TicketsRepository.GetAll()
                     : GetByUser(filter.UserId).AsQueryable();
+                Console.WriteLine("ByUserQuery");
+                Console.WriteLine(byUserQuery.Count());
 
                 // Filtrar por fecha
                 var byStartDateQuery = filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1))
                     ? _unitOfWork.TicketsRepository.GetAll()
                     : _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.Timestamp <= filter.End);
+                Console.WriteLine("ByStartDateQuery");
+                Console.WriteLine(byStartDateQuery.Count());
 
                 var byEndDateQuery = filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1))
                     ? _unitOfWork.TicketsRepository.GetAll()
                     : _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.Timestamp >= filter.Start);
+                Console.WriteLine("ByEndDateQuery");
+                Console.WriteLine(byEndDateQuery.Count());
 
                 // Filtrar por texto introducido
                 var bySearchStringQuery = string.IsNullOrEmpty(filter.SearchString)
                     ? _unitOfWork.TicketsRepository.GetAll()
                     : _unitOfWork.TicketsRepository.GetFiltered(filter.SearchString);
+                Console.WriteLine("BySearchStringQuery");
+                Console.WriteLine(bySearchStringQuery.Count());
 
                 // Unir todas las consultas filtradas
-                var filteredTickets = await Task.WhenAll(
-                    byStatusQuery.Select(s => s.ToResumeDto()).ToListAsync(),
-                    byPriorityQuery.Select(s => s.ToResumeDto()).ToListAsync(),
-                    byUserQuery.Select(s => s.ToResumeDto()).ToListAsync(),
-                    byStartDateQuery.Select(s => s.ToResumeDto()).ToListAsync(),
-                    byEndDateQuery.Select(s => s.ToResumeDto()).ToListAsync(),
-                    bySearchStringQuery.Select(s => s.ToResumeDto()).ToListAsync()
-                );
+                var filteredTickets = new List<List<Ticket>>
+                {
+                    byStatusQuery.ToList(),
+                    byPriorityQuery.ToList(),
+                    byUserQuery.ToList(),
+                    byStartDateQuery.ToList(),
+                    byEndDateQuery.ToList(),
+                    bySearchStringQuery.ToList()
+                };
+
+                Console.WriteLine("FilteredTickets");
+                Console.WriteLine(filteredTickets.First().First().Id);
+                Console.WriteLine(filteredTickets[1].First().Id);
 
                 // Encontrar la intersección de todas las listas filtradas
-                response.Tickets = filteredTickets
+                var result = filteredTickets
                     .Aggregate((previousList, nextList) => previousList.Intersect(nextList).ToList());
+
+                response.Tickets = result.Select(s => s.ToResumeDto()).ToList();
+                Console.WriteLine("Response");
+                Console.WriteLine(response.Tickets.Count);
 
                 return response;
             }
@@ -419,8 +431,6 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var tickets = _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.UserId == userId).ToList();
-                Console.WriteLine("Tickets");
-                Console.WriteLine(tickets.Count);
                 return tickets;
             }
             catch (Exception e)

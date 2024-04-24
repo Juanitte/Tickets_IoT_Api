@@ -35,6 +35,7 @@ namespace Common.Utilities
     /// </summary>
     public enum Priorities
     {
+        ALL = -1,
         NOT_SURE = 0,
         LOWEST = 1,
         LOW = 2,
@@ -48,6 +49,7 @@ namespace Common.Utilities
     /// </summary>
     public enum Status
     {
+        ALL = -1,
         PENDING = 0,
         OPENED = 1,
         PAUSED = 2,
