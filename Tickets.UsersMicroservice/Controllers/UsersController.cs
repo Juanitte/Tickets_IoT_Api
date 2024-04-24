@@ -81,29 +81,36 @@ namespace Tickets.UsersMicroservice.Controllers
         [HttpPost("users/create/manager")]
         public async Task<IActionResult> CreateManager(CreateUserDto userDto)
         {
-
-            var user = new User
+            try
             {
-                UserName = userDto.UserName,
-                Email = userDto.Email,
-                PhoneNumber = userDto.PhoneNumber,
-                Language = userDto.Language,
-                FullName = userDto.FullName
-            };
+                var user = new User
+                {
+                    UserName = userDto.UserName,
+                    Email = userDto.Email,
+                    PhoneNumber = userDto.PhoneNumber,
+                    Language = userDto.Language,
+                    FullName = userDto.FullName,
+                    Role = "SupportManager"
+                };
 
-            string password = HashPassword("IoT@2024");
+                string password = HashPassword("IoT@2024");
 
-            var createUser = await _userManager.CreateAsync(user, password);
+                var createUser = await _userManager.CreateAsync(user, password);
 
-            if (!createUser.Succeeded)
-            {
-                var errorMessage = string.Join(", ", createUser.Errors.Select(error => error.Description));
-                return BadRequest(errorMessage);
+                if (!createUser.Succeeded)
+                {
+                    var errorMessage = string.Join(", ", createUser.Errors.Select(error => error.Description));
+                    return BadRequest(errorMessage);
+                }
+
+                await _userManager.AddToRoleAsync(user, "SupportManager");
+
+                return Ok(createUser);
             }
-
-            await _userManager.AddToRoleAsync(user, "SupportManager");
-
-            return Ok(createUser);
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         /// <summary>
@@ -114,29 +121,36 @@ namespace Tickets.UsersMicroservice.Controllers
         [HttpPost("users/create/technician")]
         public async Task<IActionResult> CreateTechnician(CreateUserDto userDto)
         {
-
-            var user = new User
+            try
             {
-                UserName = userDto.UserName,
-                Email = userDto.Email,
-                PhoneNumber = userDto.PhoneNumber,
-                Language = userDto.Language,
-                FullName = userDto.FullName
-            };
+                var user = new User
+                {
+                    UserName = userDto.UserName,
+                    Email = userDto.Email,
+                    PhoneNumber = userDto.PhoneNumber,
+                    Language = userDto.Language,
+                    FullName = userDto.FullName,
+                    Role = "SupportTechnician"
+                };
 
-            string password = HashPassword("IoT@2024");
+                string password = HashPassword("IoT@2024");
 
-            var createUser = await _userManager.CreateAsync(user, password);
+                var createUser = await _userManager.CreateAsync(user, password);
 
-            if (!createUser.Succeeded)
-            {
-                var errorMessage = string.Join(", ", createUser.Errors.Select(error => error.Description));
-                return BadRequest(errorMessage);
+                if (!createUser.Succeeded)
+                {
+                    var errorMessage = string.Join(", ", createUser.Errors.Select(error => error.Description));
+                    return BadRequest(errorMessage);
+                }
+
+                await _userManager.AddToRoleAsync(user, "SupportTechnician");
+
+                return Ok(createUser);
             }
-
-            await _userManager.AddToRoleAsync(user, "SupportTechnician");
-
-            return Ok(createUser);
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         /// <summary>
@@ -148,25 +162,22 @@ namespace Tickets.UsersMicroservice.Controllers
         [HttpPut("users/update/{userId}")]
         public async Task<IActionResult> Update(int userId, CreateUserDto userDto)
         {
-            User user = await IoTServiceUsers.GetById(userId);
-            if (user == null)
+            try
             {
-                return BadRequest();
-            }
-            user.FullName = userDto.FullName;
-            user.Email = userDto.Email;
-            user.PhoneNumber = userDto.PhoneNumber;
-            user.UserName = userDto.UserName;
+                var result = await IoTServiceUsers.Update(userId, userDto);
 
-            var result = await IoTServiceUsers.Update(userId, user);
-
-            if (result.Succeeded)
-            {
-                return Ok(result);
+                if (result.Succeeded)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return Problem("Error updating user.");
+                }
             }
-            else
+            catch (Exception e)
             {
-                return Problem("Error updating user.");
+                return BadRequest(e.Message);
             }
         }
 
@@ -226,17 +237,8 @@ namespace Tickets.UsersMicroservice.Controllers
         {
             try
             {
-                var result = new List<User>();
-                var users = await IoTServiceUsers.GetAll();
-                foreach (var user in users)
-                {
-                    var roles = await _userManager.GetRolesAsync(user);
-                    var role = roles.FirstOrDefault();
-                    if (role.Equals("SupportTechnician"))
-                    {
-                        result.Add(user);
-                    }
-                }
+                var result = IoTServiceUsers.GetTechnicians();
+                
                 return new JsonResult(result);
             }
             catch (Exception e)
@@ -257,16 +259,8 @@ namespace Tickets.UsersMicroservice.Controllers
         {
             try
             {
-                var email = string.Concat(username, "@", domain, ".", tld);
-                var user = await IoTServiceUsers.GetByEmail(email);
-                string hashedEmail = Hash(email);
-                if (user != null)
-                {
-                    IoTServiceUsers.SendMail(email, string.Concat("http://localhost:4200/recuperar/", hashedEmail, "/", username, "/", domain, "/", tld));
-                    return Ok();
-                }
-
-                return BadRequest(user);
+                IoTServiceUsers.SendMail(username, domain, tld);
+                return Ok();
             } catch (Exception e)
             {
                 return BadRequest();
@@ -283,8 +277,7 @@ namespace Tickets.UsersMicroservice.Controllers
         {
             try
             {
-                var email = string.Concat(resetPass.Username, "@", resetPass.Domain, ".", resetPass.Tld);
-                var user = await IoTServiceUsers.GetByEmail(email);
+                var user = await IoTServiceUsers.ResetPassword(resetPass);
                 if (user != null)
                 {
                     if(await IoTServiceIdentity.UpdateUserPassword(user, resetPass.Password))
@@ -304,24 +297,7 @@ namespace Tickets.UsersMicroservice.Controllers
 
         #region Métodos Privados
 
-        /// <summary>
-        ///     Hashea un texto
-        /// </summary>
-        /// <param name="text">el texto a hashear</param>
-        /// <returns></returns>
-        public static string Hash(string text)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
-                StringBuilder builder = new StringBuilder();
-                foreach (byte b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
-            }
-        }
+        
 
         /// <summary>
         ///     Hashea una contraseña igual que el frontend

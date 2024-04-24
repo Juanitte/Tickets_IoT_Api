@@ -183,7 +183,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("IdentitiesService.CreateUser", e);
+                _logger.LogError(e, "IdentitiesService.CreateUser");
                 throw;
             }
         }
@@ -200,7 +200,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("IdentitiesService.Logoff", e);
+                _logger.LogError(e, "IdentitiesService.Logoff");
                 throw;
             }
         }
@@ -218,7 +218,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("IdentitiesService.GetTokenPassword", e);
+                _logger.LogError(e, "IdentitiesService.GetTokenPassword");
                 throw;
             }
         }
@@ -237,7 +237,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("IdentitiesService.GetPurposeToken", e);
+                _logger.LogError(e, "IdentitiesService.GetPurposeToken");
                 throw;
             }
         }
@@ -257,7 +257,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("IdentitiesService.VerifyUserToken", e);
+                _logger.LogError(e, "IdentitiesService.VerifyUserToken");
                 throw;
             }
         }
@@ -279,7 +279,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("IdentitiesService.CreateRole", e);
+                _logger.LogError(e, "IdentitiesService.CreateRole");
                 throw;
             }
         }
@@ -297,7 +297,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("IdentitiesService.GetUserRoles", e);
+                _logger.LogError(e, "IdentitiesService.GetUserRoles");
                 throw;
             }
         }
@@ -315,7 +315,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("IdentitiesService.GetUsersByRole", e);
+                _logger.LogError(e, "IdentitiesService.GetUsersByRole");
                 throw;
             }
         }
@@ -380,7 +380,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("IdentitiesService.SetUserClaims", e);
+                _logger.LogError(e, "IdentitiesService.SetUserClaims");
                 throw;
             }
         }
@@ -398,7 +398,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("IdentitiesService.GetClaims", e);
+                _logger.LogError(e, "IdentitiesService.GetClaims");
                 throw;
             }
         }
@@ -422,7 +422,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("IdentitiesService.UpdateUserPassword", e);
+                _logger.LogError(e, "IdentitiesService.UpdateUserPassword");
                 throw;
             }
         }
@@ -450,7 +450,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("IdentitiesService.UpdateUserRole", e);
+                _logger.LogError(e, "IdentitiesService.UpdateUserRole");
                 throw;
             }
         }
@@ -483,7 +483,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("IdentitiesService.DefaultRoles", e);
+                _logger.LogError(e, "IdentitiesService.DefaultRoles");
                 throw;
             }
         }

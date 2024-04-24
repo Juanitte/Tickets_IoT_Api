@@ -141,7 +141,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("TicketsService.AsignTicket => ", e);
+                _logger.LogError(e, "TicketsService.AsignTicket => ");
                 throw;
             }
         }
@@ -168,7 +168,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("TicketsService.ChangePriority => ", e);
+                _logger.LogError(e, "TicketsService.ChangePriority => ");
                 throw;
             }
         }
@@ -195,7 +195,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("TicketsService.ChangeState => ", e);
+                _logger.LogError(e, "TicketsService.ChangeState => ");
                 throw;
             }
         }
@@ -254,7 +254,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("TicketsService.Create => ", e);
+                _logger.LogError(e, "TicketsService.Create => ");
                 throw;
             }
         }
@@ -287,7 +287,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("UsersService.Remove => ", ticketId);
+                _logger.LogError(ticketId, "UsersService.Remove => ");
                 throw;
             }
         }
@@ -305,7 +305,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("TicketsService.Get =>", id, e);
+                _logger.LogError(e, "TicketsService.Get =>");
                 throw;
             }
         }
@@ -333,7 +333,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("TicketsService.GetAll => ", e);
+                _logger.LogError(e, "TicketsService.GetAll => ");
                 throw;
             }
         }
@@ -415,7 +415,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("TicketsService.GetByUser => ", e);
+                _logger.LogError(e, "TicketsService.GetByUser => ");
                 throw;
             }
         }
@@ -452,7 +452,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("TicketsService.Update => ", e);
+                _logger.LogError(e, "TicketsService.Update => ");
                 throw;
             }
         }
@@ -483,7 +483,7 @@ namespace Tickets.TicketsMicroservice.Services
                 }
             } catch(Exception e)
             {
-                _logger.LogError("Send Mail => ", e);
+                _logger.LogError(e, "Send Mail => ");
                 return false;
             }
         }
