@@ -87,6 +87,23 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.newMessagesCount = 1;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var other = (Ticket)obj;
+
+            return Id == other.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
         /// <summary>
         ///     Convierte el modelo en un objeto dto
         /// </summary>
