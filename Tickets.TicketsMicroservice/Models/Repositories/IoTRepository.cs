@@ -231,12 +231,6 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
         public virtual IQueryable<T> GetFiltered(string propertyName, object value, FilterType? filterType = FilterType.equals)
         {
             var propertyInfo = typeof(T).GetProperty(propertyName);
-            Console.WriteLine("PropertyInfo");
-            Console.WriteLine(propertyInfo != null);
-            Console.WriteLine(propertyInfo.Name);
-            Console.WriteLine("Value");
-            Console.WriteLine(value);
-            Console.WriteLine(value.GetType().Name);
             if (propertyInfo != null)
             {
                     switch (filterType)
