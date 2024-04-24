@@ -28,6 +28,7 @@ namespace Tickets.UsersMicroservice.Models.Entities
 
         public string FullName { get; set; }
         public Language Language { get; set; }
+        public string Role { get; set; }
     }
 
     /// <summary>

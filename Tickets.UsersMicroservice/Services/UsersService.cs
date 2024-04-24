@@ -1,10 +1,14 @@
-﻿using Duende.IdentityServer.Extensions;
+﻿using Common.Utilities;
+using Duende.IdentityServer.Extensions;
 using MailKit.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
+using Org.BouncyCastle.Asn1.X509;
+using System.Security.Cryptography;
 using System.Security.Principal;
+using System.Text;
 using Tickets.UsersMicroservice.Models.Dtos.CreateDto;
 using Tickets.UsersMicroservice.Models.Dtos.EntityDto;
 using Tickets.UsersMicroservice.Models.Dtos.FilterDto;
@@ -53,28 +57,28 @@ namespace Tickets.UsersMicroservice.Services
         /// Obtiene todos los usuarios
         /// </summary>
         /// <returns></returns>
-        Task<List<User>> GetAll();
+        Task<List<UserDto>> GetAll();
 
         /// <summary>
         ///     Obtiene un usuario según su nombre de usuario
         /// </summary>
         /// <param name="userName"></param>
-        /// <returns><see cref="User"/></returns>
-        Task<User> GetByUserName(string userName);
+        /// <returns><see cref="UserDto"/></returns>
+        Task<UserDto> GetByUserName(string userName);
 
         /// <summary>
         ///     Obtiene un usuario según su email
         /// </summary>
         /// <param name="email"></param>
         /// <returns><see cref="User"/></returns>
-        Task<User> GetByEmail(string email);
+        Task<UserDto> GetByEmail(string email);
 
         /// <summary>
         ///     Obtiene un usuario según su id
         /// </summary>
         /// <param name="id"></param>
         /// <returns><see cref="User"/></returns>
-        Task<User> GetById(int id);
+        Task<UserDto> GetById(int id);
 
         /// <summary>
         ///     Elimina el usuario con el id pasado como parámetro
@@ -89,7 +93,7 @@ namespace Tickets.UsersMicroservice.Services
         /// <param name="ioTUser"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<IdentityResult> Update(int userId, User updatedUser);
+        Task<IdentityResult> Update(int userId, CreateUserDto userDto);
 
         /// <summary>
         ///     Cambia el idioma al usuario pasado como parámetro
@@ -109,9 +113,26 @@ namespace Tickets.UsersMicroservice.Services
         /// <summary>
         ///     Método que envía un email
         /// </summary>
-        /// <param name="mail"></param>
+        /// <param name="username">el nombre del correo</param>
+        /// <param name="domain">el dominio del correo (ej. 'gmail')</param>
+        /// <param name="tld">el final del correo (ej. '.com')</param>
         /// <returns></returns>
-        void SendMail(string email, string link);
+        void SendMail(string username, string domain, string tld);
+
+        /// <summary>
+        ///     Obtiene todos los usuarios con SupportTechnician como rol.
+        /// </summary>
+        /// <returns>Una lista de <see cref="UserDto"/> con todos los técnicos</returns>
+        Task<List<UserDto>> GetTechnicians();
+
+        /// <summary>
+        ///     Restablece la contraseña de un usuario
+        /// </summary>
+        /// <param name="resetPassword"><see cref="ResetPasswordDto"/> con los datos de restablecimiento de contraseña</param>
+        /// <returns></returns>
+        Task<User> ResetPassword(ResetPasswordDto resetPass);
+
+
     }
     public sealed class UsersService : BaseService, IUsersService
     {
@@ -162,7 +183,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("UsersService.ChangeLanguage => ", changeLanguage.LanguageId, e);
+                _logger.LogError(e, "UsersService.ChangeLanguage => ");
                 throw;
             }
         }
@@ -208,15 +229,21 @@ namespace Tickets.UsersMicroservice.Services
         ///     Obtiene todos los usuarios
         /// </summary>
         /// <returns></returns>
-        public async Task<List<User>> GetAll()
+        public async Task<List<UserDto>> GetAll()
         {
             try
             {
-                return await _unitOfWork.UsersRepository.GetAll().ToListAsync();
+                var users = await _unitOfWork.UsersRepository.GetAll().ToListAsync();
+                List<UserDto> result = new List<UserDto>();
+                foreach (var user in users)
+                {
+                    result.Add(Extensions.ConvertModel(user, new UserDto()));
+                }
+                return result;
             }
             catch (Exception e)
             {
-                _logger.LogError("UsersService.GetAll => ", e);
+                _logger.LogError(e, "UsersService.GetAll => ");
                 throw;
             }
         }
@@ -225,16 +252,17 @@ namespace Tickets.UsersMicroservice.Services
         ///     Obtiene el usuario según el email
         /// </summary>
         /// <param name="email">El email</param>
-        /// <returns><see cref="User"/> con los datos del usuario</returns>
-        public async Task<User> GetByEmail(string email)
+        /// <returns><see cref="UserDto"/> con los datos del usuario</returns>
+        public async Task<UserDto> GetByEmail(string email)
         {
             try
             {
-                return await Task.FromResult(_unitOfWork.UsersRepository.GetFirst(g => g.Email.Equals(email)));
+                var user = await Task.FromResult(_unitOfWork.UsersRepository.GetFirst(g => g.Email.Equals(email)));
+                return Extensions.ConvertModel(user, new UserDto());
             }
             catch (Exception e)
             {
-                _logger.LogError("UsersService.GetByEmail =>", email, e);
+                _logger.LogError(e, "UsersService.GetByEmail =>");
                 throw;
             }
         }
@@ -243,16 +271,17 @@ namespace Tickets.UsersMicroservice.Services
         ///     Obtiene el usuario según su id
         /// </summary>
         /// <param name="id">El id del usuario</param>
-        /// <returns><see cref="User"/> con los datos del usuario</returns>
-        public async Task<User> GetById(int id)
+        /// <returns><see cref="UserDto"/> con los datos del usuario</returns>
+        public async Task<UserDto> GetById(int id)
         {
             try
             {
-                return await Task.FromResult(_unitOfWork.UsersRepository.GetFirst(g => g.Id.Equals(id)));
+                var user = await Task.FromResult(_unitOfWork.UsersRepository.GetFirst(g => g.Id.Equals(id)));
+                return Extensions.ConvertModel(user, new UserDto());
             }
             catch (Exception e)
             {
-                _logger.LogError("UsersService.GetByUserName =>", id, e);
+                _logger.LogError(e, "UsersService.GetByUserName =>");
                 throw;
             }
         }
@@ -261,16 +290,17 @@ namespace Tickets.UsersMicroservice.Services
         ///     Obtiene el usuario según su nombre de usuario
         /// </summary>
         /// <param name="userName">El nombre de usuario</param>
-        /// <returns><see cref="User"/> con los datos del usuario</returns>
-        public async Task<User> GetByUserName(string userName)
+        /// <returns><see cref="UserDto"/> con los datos del usuario</returns>
+        public async Task<UserDto> GetByUserName(string userName)
         {
             try
             {
-                return await Task.FromResult(_unitOfWork.UsersRepository.GetFirst(g => g.UserName.Equals(userName)));
+                var user = await Task.FromResult(_unitOfWork.UsersRepository.GetFirst(g => g.UserName.Equals(userName)));
+                return Extensions.ConvertModel(user, new UserDto());
             }
             catch(Exception e)
             {
-                _logger.LogError("UsersService.GetByUserName =>", userName, e);
+                _logger.LogError(e, "UsersService.GetByUserName =>");
                 throw;
             }
         }
@@ -300,7 +330,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("UsersService.GetRoleByUserId => ", userId, e);
+                _logger.LogError(e, "UsersService.GetRoleByUserId => ");
                 throw;
             }
         }
@@ -359,7 +389,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("UsersService.Login", e);
+                _logger.LogError(e, "UsersService.Login");
                 return false;
             }
         }
@@ -391,7 +421,7 @@ namespace Tickets.UsersMicroservice.Services
             }
             catch(Exception e)
             {
-                _logger.LogError("UsersService.Remove => ", id);
+                _logger.LogError(e, "UsersService.Remove => ");
                 throw;
             }
         }
@@ -402,10 +432,19 @@ namespace Tickets.UsersMicroservice.Services
         /// <param name="ioTUser"><see cref="CreateUserDto"/> con los nuevos datos de usuario</param>
         /// <param name="userId">El id del usuario</param>
         /// <returns>Una lista de errores</returns>
-        public async Task<IdentityResult> Update(int userId, User updatedUser)
-        { 
+        public async Task<IdentityResult> Update(int userId, CreateUserDto userDto)
+        {
+            User user = await _unitOfWork.UsersRepository.Get(userId);
+            if(user == null)
+            {
+                return IdentityResult.Failed();
+            }
+            user.FullName = userDto.FullName;
+            user.Email = userDto.Email;
+            user.PhoneNumber = userDto.PhoneNumber;
+            user.UserName = userDto.UserName;
 
-            _unitOfWork.UsersRepository.Update(updatedUser);
+            _unitOfWork.UsersRepository.Update(user);
             await _unitOfWork.SaveChanges();
             return IdentityResult.Success;
         }
@@ -436,27 +475,77 @@ namespace Tickets.UsersMicroservice.Services
         /// <param name="email">el email destino</param>
         /// <param name="link">el enlace de restablecer contraseña</param>
         /// <returns></returns>
-        public async void SendMail(string email, string link)
+        public async void SendMail(string username, string domain, string tld)
         {
             try
             {
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("IoT Incidencias", "noreply.iot.incidencias@gmail.com"));
-                message.To.Add(new MailboxAddress("", email));
-                message.Subject = Translation_Account.Email_title;
-                message.Body = new TextPart("plain") { Text = string.Concat(Translation_Account.Email_body, "\n", link) };
-
-                using (var client = new MailKit.Net.Smtp.SmtpClient())
+                var email = string.Concat(username, "@", domain, ".", tld);
+                var user = _unitOfWork.UsersRepository.GetFirst(u => u.Email == email);
+                string hashedEmail = Hash(email);
+                if (user != null)
                 {
-                    client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    client.Authenticate("noreply.iot.incidencias@gmail.com", "levp dwqb qacd vhle");
-                    client.Send(message);
-                    client.Disconnect(true);
+                    var link = string.Concat("http://localhost:4200/recuperar/", hashedEmail, "/", username, "/", domain, "/", tld);
+
+                    var message = new MimeMessage();
+                    message.From.Add(new MailboxAddress("IoT Incidencias", "noreply.iot.incidencias@gmail.com"));
+                    message.To.Add(new MailboxAddress("", email));
+                    message.Subject = Translation_Account.Email_title;
+                    message.Body = new TextPart("plain") { Text = string.Concat(Translation_Account.Email_body, "\n", link) };
+
+                    using (var client = new MailKit.Net.Smtp.SmtpClient())
+                    {
+                        client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                        client.Authenticate("noreply.iot.incidencias@gmail.com", "levp dwqb qacd vhle");
+                        client.Send(message);
+                        client.Disconnect(true);
+                    }
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError("Send Mail => ", e);
+                _logger.LogError(e, "Send Mail => ");
+            }
+        }
+
+        /// <summary>
+        ///     Obtiene todos los usuarios con SupportTechnician como rol.
+        /// </summary>
+        /// <returns>Una lista de <see cref="UserDto"/> con todos los técnicos</returns>
+        public async Task<List<UserDto>> GetTechnicians()
+        {
+            List<UserDto> result = new List<UserDto>();
+            try
+            {
+                var users = _unitOfWork.UsersRepository.GetAll().Where(user => user.Role == "SupportTechnician");
+                foreach(var user in users)
+                {
+                    result.Add(Extensions.ConvertModel(user, new UserDto()));
+                }
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Get Technicians => ");
+                return result;
+            }
+        }
+
+        /// <summary>
+        ///     Restablece la contraseña de un usuario
+        /// </summary>
+        /// <param name="resetPassword"><see cref="ResetPasswordDto"/> con los datos de restablecimiento de contraseña</param>
+        /// <returns></returns>
+        public async Task<User> ResetPassword(ResetPasswordDto resetPass)
+        {
+            try
+            {
+                var email = string.Concat(resetPass.Username, "@", resetPass.Domain, ".", resetPass.Tld);
+                return _unitOfWork.UsersRepository.GetFirst(u => u.Email == email);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Reset password => ");
+                return null;
             }
         }
 
@@ -502,6 +591,29 @@ namespace Tickets.UsersMicroservice.Services
         public class UserWithoutVerificationException : Exception { }
         public class UserSessionNotValidException : Exception { }
         public class UserWithoutPermissionException : Exception { }
+
+        #endregion
+
+        #region Métodos privados
+
+        /// <summary>
+        ///     Hashea un texto
+        /// </summary>
+        /// <param name="text">el texto a hashear</param>
+        /// <returns></returns>
+        public static string Hash(string text)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
 
         #endregion
     }

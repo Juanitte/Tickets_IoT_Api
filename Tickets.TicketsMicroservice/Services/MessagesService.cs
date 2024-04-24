@@ -134,7 +134,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("MessagesService.Create => ", e);
+                _logger.LogError(e, "MessagesService.Create => ");
                 throw;
             }
         }
@@ -174,7 +174,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("MessagesService.Remove => ", id);
+                _logger.LogError(id, "MessagesService.Remove => ");
                 throw;
             }
         }
@@ -198,7 +198,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("MessagesService.Get =>", id, e);
+                _logger.LogError(e, "MessagesService.Get =>");
                 throw;
             }
         }
@@ -226,7 +226,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("MessagesService.GetAll => ", e);
+                _logger.LogError(e, "MessagesService.GetAll => ");
                 throw;
             }
         }
@@ -263,7 +263,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("MessagesService.GetByTicket => ", e);
+                _logger.LogError(e, "MessagesService.GetByTicket => ");
                 throw;
             }
         }
@@ -311,7 +311,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("MessagesService.Update => ", e);
+                _logger.LogError(e, "MessagesService.Update => ");
                 throw;
             }
         }
@@ -354,7 +354,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("MessagesService.RemoveByTicket => ", ticketId);
+                _logger.LogError(ticketId, "MessagesService.RemoveByTicket => ");
                 throw;
             }
         }

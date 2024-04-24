@@ -76,7 +76,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("AttachmentsService.Create => ", e);
+                _logger.LogError(e, "AttachmentsService.Create => ");
                 throw;
             }
         }
@@ -94,7 +94,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("AttachmentsService.Get =>", id, e);
+                _logger.LogError(e, "AttachmentsService.Get =>");
                 throw;
             }
         }
@@ -111,7 +111,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("AttachmentsService.GetAll => ", e);
+                _logger.LogError(e, "AttachmentsService.GetAll => ");
                 throw;
             }
         }
@@ -145,7 +145,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("AttachmentsService.GetByMessage => ", e);
+                _logger.LogError(e, "AttachmentsService.GetByMessage => ");
                 throw;
             }
         }
@@ -177,7 +177,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("AttachmentsService.Remove => ", id);
+                _logger.LogError(e, "AttachmentsService.Remove => ");
                 throw;
             }
         }
@@ -201,7 +201,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("AttachmentsService.Update => ", e);
+                _logger.LogError(e, "AttachmentsService.Update => ");
                 throw;
             }
         }
