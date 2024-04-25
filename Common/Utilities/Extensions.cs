@@ -12,17 +12,20 @@ namespace Common.Utilities
         /// <returns></returns>
         public static X ConvertModel<X>(this object input, X output) where X : class, new()
         {
-            var modelProperties = input.GetType().GetProperties().ToList();
-            foreach (var property in output.GetType().GetProperties().ToList())
+            if (input != null)
             {
-                var prop = modelProperties.FirstOrDefault(p => p.Name == property.Name);
-                if (prop != null)
+                var modelProperties = input.GetType().GetProperties().ToList();
+                foreach (var property in output.GetType().GetProperties().ToList())
                 {
-                    try
+                    var prop = modelProperties.FirstOrDefault(p => p.Name == property.Name);
+                    if (prop != null)
                     {
-                        property.SetValue(output, prop.GetValue(input));
+                        try
+                        {
+                            property.SetValue(output, prop.GetValue(input));
+                        }
+                        catch { }
                     }
-                    catch { }
                 }
             }
             return output;

@@ -370,7 +370,7 @@ namespace Tickets.TicketsMicroservice.Services
         /// <returns>la ruta del archivo guardado</returns>
         private async Task<string> SaveAttachmentToFileSystem(IFormFile attachment, int ticketId)
         {
-            var fileName = Path.GetFileNameWithoutExtension(attachment.FileName) + "_" + Guid.NewGuid().ToString() + Path.GetExtension(attachment.FileName);
+            var fileName = Path.GetFileNameWithoutExtension(attachment.FileName) + "_" + DateTime.Now.ToString() + Path.GetExtension(attachment.FileName);
             string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
             string filePath = Path.Combine(directoryPath, fileName);
 
