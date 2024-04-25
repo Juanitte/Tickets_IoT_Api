@@ -264,7 +264,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/tickets/changestate/{ticketId}/{state}",
+      "DownstreamPathTemplate": "/tickets/changestatus/{ticketId}/{status}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -272,7 +272,7 @@
           "Port": 7027
         }
       ],
-      "UpstreamPathTemplate": "/gateway/tickets/changestate/{ticketId}/{state}",
+      "UpstreamPathTemplate": "/gateway/tickets/changestatus/{ticketId}/{status}",
       "UpstreamHttpMethod": [ "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"

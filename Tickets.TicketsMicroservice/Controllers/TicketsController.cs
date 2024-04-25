@@ -160,10 +160,10 @@ namespace Tickets.TicketsMicroservice.Controllers
         ///     Método que cambia el estado a la incidencia con id pasado como parámetro
         /// </summary>
         /// <param name="ticketId">El id de la incidencia a modificar</param>
-        /// <param name="state">el valor del estado</param>
+        /// <param name="status">el valor del estado</param>
         /// <returns></returns>
-        [HttpPut("tickets/changestate/{ticketId}/{state}")]
-        public async Task<IActionResult> ChangeState(int ticketId, int status)
+        [HttpPut("tickets/changestatus/{ticketId}/{status}")]
+        public async Task<IActionResult> ChangeStatus(int ticketId, int status)
         {
 
             var result = await IoTServiceTickets.ChangeStatus(ticketId, (Status)status);
