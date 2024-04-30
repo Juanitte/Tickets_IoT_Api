@@ -234,11 +234,7 @@ namespace Tickets.UsersMicroservice.Services
             try
             {
                 var users = await _unitOfWork.UsersRepository.GetAll().ToListAsync();
-                List<UserDto> result = new List<UserDto>();
-                foreach (var user in users)
-                {
-                    result.Add(Extensions.ConvertModel(user, new UserDto()));
-                }
+                var result = users.Select(u => Extensions.ConvertModel(u, new UserDto())).ToList();
                 return result;
             }
             catch (Exception e)
@@ -513,20 +509,16 @@ namespace Tickets.UsersMicroservice.Services
         /// <returns>Una lista de <see cref="UserDto"/> con todos los técnicos</returns>
         public async Task<List<UserDto>> GetTechnicians()
         {
-            List<UserDto> result = new List<UserDto>();
             try
             {
-                var users = _unitOfWork.UsersRepository.GetAll().Where(user => user.Role == "SupportTechnician");
-                foreach(var user in users)
-                {
-                    result.Add(Extensions.ConvertModel(user, new UserDto()));
-                }
+                var users = _unitOfWork.UsersRepository.GetAll(user => user.Role == "SupportTechnician");
+                var result = users.Select(u => Extensions.ConvertModel(u, new UserDto())).ToList();
                 return result;
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Get Technicians => ");
-                return result;
+                throw;
             }
         }
 

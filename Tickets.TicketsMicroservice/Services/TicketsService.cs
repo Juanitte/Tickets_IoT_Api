@@ -30,6 +30,13 @@ namespace Tickets.TicketsMicroservice.Services
         public Task<List<TicketDto>> GetAll();
 
         /// <summary>
+        ///     Obtiene todas las incidencias con el nombre completo del técnico asignado
+        ///     usando una vista
+        /// </summary>
+        /// <returns></returns>
+        public Task<List<TicketUser>> GetAllWithNames();
+
+        /// <summary>
         ///     Obtiene la incidencia cuyo id se ha pasado como parámetro
         /// </summary>
         /// <param name="id">el id de la incidencia a buscar</param>
@@ -127,10 +134,10 @@ namespace Tickets.TicketsMicroservice.Services
                 var ticket = await _unitOfWork.TicketsRepository.Get(ticketId);
                 if (ticket != null)
                 {
-                    if (!ticket.IsAsigned)
+                    if (!ticket.IsAssigned)
                     {
                         ticket.Status = Status.OPENED;
-                        ticket.IsAsigned = true;
+                        ticket.IsAssigned = true;
                     }
                     ticket.UserId = userId;
                     _unitOfWork.TicketsRepository.Update(ticket);
@@ -238,6 +245,7 @@ namespace Tickets.TicketsMicroservice.Services
                         }
 
                         ticket.Messages.Add(message);
+                        ticket.NewMessagesCount++;
 
                         _unitOfWork.TicketsRepository.Update(ticket);
                         string hashedId = Hash(ticket.Id.ToString());
@@ -319,21 +327,31 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var tickets = await _unitOfWork.TicketsRepository.GetAll().ToListAsync();
-                List<TicketDto> result = new List<TicketDto>();
-                foreach (var ticket in tickets)
-                {
-                    result.Add(Extensions.ConvertModel(ticket, new TicketDto()));
-                    var messages = await _unitOfWork.MessagesRepository.GetAll().Where(message => message.TicketId == ticket.Id).ToListAsync();
-                    foreach (var message in messages)
-                    {
-                        result.Last().Messages.Add(Extensions.ConvertModel(message, new MessageDto()));
-                    }
-                }
+                Console.WriteLine(tickets.Count);
+                List<TicketDto> result = tickets.Select(t => Extensions.ConvertModel(t, new TicketDto())).ToList();
                 return result;
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "TicketsService.GetAll => ");
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     Obtiene todas las incidencias junto con el nombre del técnico asignado.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<TicketUser>> GetAllWithNames()
+        {
+            try
+            {
+                var tickets = await _unitOfWork.TicketUserRepository.GetAll().ToListAsync();
+                return tickets;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "TicketService.GetAllWithNames => ");
                 throw;
             }
         }
@@ -440,6 +458,7 @@ namespace Tickets.TicketsMicroservice.Services
                     ticket.Title = newTicket.Title;
                     ticket.Name = newTicket.Name;
                     ticket.HasNewMessages = newTicket.HasNewMessages;
+                    ticket.NewMessagesCount = newTicket.NewMessagesCount;
 
                     _unitOfWork.TicketsRepository.Update(ticket);
                     await _unitOfWork.SaveChanges();

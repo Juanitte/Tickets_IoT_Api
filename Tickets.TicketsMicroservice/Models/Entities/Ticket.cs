@@ -26,9 +26,9 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public Priorities Priority { get; set; }
         public Status Status { get; set; }
 
-        public bool IsAsigned { get; set; }
+        public bool IsAssigned { get; set; }
         public bool HasNewMessages { get; set; }
-        public int newMessagesCount { get; set; }
+        public int NewMessagesCount { get; set; }
         public List<Message?> Messages { get; set; } = new List<Message?>();
 
         public Ticket()
@@ -40,9 +40,9 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.UserId = -1;
             this.Priority = Priorities.NOT_SURE;
             this.Status = Status.PENDING;
-            this.IsAsigned = false;
+            this.IsAssigned = false;
             this.HasNewMessages = true;
-            this.newMessagesCount = 1;
+            this.NewMessagesCount = 0;
         }
         public Ticket(string title, string name, string email)
         {
@@ -53,9 +53,9 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.UserId = -1;
             this.Priority = Priorities.NOT_SURE;
             this.Status = Status.PENDING;
-            this.IsAsigned = false;
+            this.IsAssigned = false;
             this.HasNewMessages = true;
-            this.newMessagesCount = 1;
+            this.NewMessagesCount = 0;
         }
 
         public Ticket(Message message)
@@ -68,9 +68,9 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Priority = Priorities.NOT_SURE;
             this.Status = Status.PENDING;
             this.Messages.Add(message);
-            this.IsAsigned = false;
+            this.IsAssigned = false;
             this.HasNewMessages = true;
-            this.newMessagesCount = 1;
+            this.NewMessagesCount = 0;
         }
         public Ticket(string title, string name, string email, Message message)
         {
@@ -82,9 +82,9 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Priority = Priorities.NOT_SURE;
             this.Status = Status.PENDING;
             this.Messages.Add(message);
-            this.IsAsigned = false;
+            this.IsAssigned = false;
             this.HasNewMessages = true;
-            this.newMessagesCount = 1;
+            this.NewMessagesCount = 0;
         }
 
         public override bool Equals(object obj)

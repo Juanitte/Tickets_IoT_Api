@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tickets.TicketsMicroservice.Models.Context;
 
@@ -11,9 +12,11 @@ using Tickets.TicketsMicroservice.Models.Context;
 namespace Tickets.TicketsMicroservice.Migrations
 {
     [DbContext(typeof(TicketsDbContext))]
-    partial class TicketsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240430105853_db_view_final")]
+    partial class db_view_final
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,56 +24,6 @@ namespace Tickets.TicketsMicroservice.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Tickets.TicketsMicroservice.Models.Dtos.EntityDto.TicketUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("FullName");
-
-                    b.Property<bool>("HasNewMessages")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsAssigned")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NewMessagesCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("Tickets_Username", (string)null);
-                });
 
             modelBuilder.Entity("Tickets.TicketsMicroservice.Models.Entities.Attachment", b =>
                 {
@@ -138,7 +91,7 @@ namespace Tickets.TicketsMicroservice.Migrations
                     b.Property<bool>("HasNewMessages")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsAssigned")
+                    b.Property<bool>("IsAsigned")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")

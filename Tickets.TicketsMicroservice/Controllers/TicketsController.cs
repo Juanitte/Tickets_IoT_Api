@@ -11,6 +11,7 @@ using Tickets.TicketsMicroservice.Models.Entities;
 
 namespace Tickets.TicketsMicroservice.Controllers
 {
+    [ApiController]
     public class TicketsController : BaseController
     {
         #region Miembros privados
@@ -35,11 +36,30 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("tickets/getall")]
-        public async Task<JsonResult> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             try
             {
                 var tickets = await IoTServiceTickets.GetAll();
+
+                return new JsonResult(tickets);
+            }
+            catch (Exception e)
+            {
+                return new JsonResult(new List<CreateTicketDataDto>());
+            }
+        }
+
+        /// <summary>
+        ///     Método que obtiene todas las incidencias con el nombre del técnico asignado
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("tickets/getallwithnames")]
+        public async Task<IActionResult> GetAllWithNames()
+        {
+            try
+            {
+                var tickets = await IoTServiceTickets.GetAllWithNames();
 
                 return new JsonResult(tickets);
             }
@@ -78,10 +98,6 @@ namespace Tickets.TicketsMicroservice.Controllers
             try
             {
                 var ticket = await IoTServiceTickets.Get(id);
-                if (ticket != null)
-                {
-                    ticket.Messages = await IoTServiceMessages.GetByTicket(id);
-                }
                 return new JsonResult(ticket);
             }
             catch (Exception e)

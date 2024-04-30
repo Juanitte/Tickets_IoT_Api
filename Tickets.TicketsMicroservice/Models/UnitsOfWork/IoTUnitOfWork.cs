@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Tickets.TicketsMicroservice.Models.Context;
+using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Entities;
 using Tickets.TicketsMicroservice.Models.Repositories;
 
@@ -37,6 +38,11 @@ namespace Tickets.TicketsMicroservice.Models.UnitsOfWork
         /// </summary>
         private IoTRepository<Attachment> _attachmentsRepository;
 
+        /// <summary>
+        ///     Repositorio de incidencias + nombre de técnico
+        /// </summary>
+        private IoTRepository<TicketUser> _ticketUserRepository;
+
         #endregion
 
         #endregion
@@ -57,6 +63,11 @@ namespace Tickets.TicketsMicroservice.Models.UnitsOfWork
         ///     Repositorio de archivos adjuntos
         /// </summary>
         public IoTRepository<Attachment> AttachmentsRepository => _attachmentsRepository ?? (_attachmentsRepository = new IoTRepository<Attachment>(_context, _logger));
+
+        /// <summary>
+        ///     Repositorio de incidencias + nombre de técnico
+        /// </summary>
+        public IoTRepository<TicketUser> TicketUserRepository => _ticketUserRepository ?? (_ticketUserRepository = new IoTRepository<TicketUser>(_context, _logger));
 
         #endregion
 

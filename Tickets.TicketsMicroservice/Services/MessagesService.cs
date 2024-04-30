@@ -127,6 +127,7 @@ namespace Tickets.TicketsMicroservice.Services
                 if (ticket != null)
                 {
                     ticket.HasNewMessages = true;
+                    ticket.NewMessagesCount++;
                     _unitOfWork.TicketsRepository.Update(ticket);
                 }
 
@@ -246,17 +247,18 @@ namespace Tickets.TicketsMicroservice.Services
                 {
                     foreach (var message in messages)
                     {
-                        result.Add(Extensions.ConvertModel(message, new MessageDto()));
+                        result.Insert(0, Extensions.ConvertModel(message, new MessageDto()));
                             
                         message.AttachmentPaths = await _unitOfWork.AttachmentsRepository.GetAll().Where(a => a.MessageId == message.Id).ToListAsync();
                         if (!message.AttachmentPaths.IsNullOrEmpty())
                         {
                             foreach (var attachment in message.AttachmentPaths)
                             {
-                                result.Last().AttachmentPaths.Add(Extensions.ConvertModel(attachment, new AttachmentDto()));
+                                result[0].AttachmentPaths.Add(Extensions.ConvertModel(attachment, new AttachmentDto()));
                             }
                         }
                     }
+                    Console.WriteLine(result.Count);
                     return result;
                 }
                 return null;
