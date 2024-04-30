@@ -19,11 +19,8 @@ builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
            .AllowAnyHeader();
 }));
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-    });
+builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -89,7 +86,7 @@ ILoggerFactory loggerFactory = new LoggerFactory();
 
 loggerFactory.AddSerilog(new LoggerConfiguration()
                             .MinimumLevel.Debug()
-                            .WriteTo.RollingFile("C:/Datos/GET/TrackssMicroservice/log-{Date}.txt")
+                            .WriteTo.RollingFile("C:/ProyectoIoT/Back/ticket_logs/log-{Date}.txt")
                             .CreateLogger());
 
 builder.Services.AddSingleton(typeof(ILoggerFactory), loggerFactory);

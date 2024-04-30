@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Entities;
 
 namespace Tickets.TicketsMicroservice.Models.Context
@@ -9,6 +10,7 @@ namespace Tickets.TicketsMicroservice.Models.Context
 
         public DbSet<Ticket> TicketDb { get; set; }
         public DbSet<Message> MessagesDb { get; set; }
+        public DbSet<TicketUser> TicketUserDb { get; set; }
 
         #endregion
 
@@ -34,6 +36,7 @@ namespace Tickets.TicketsMicroservice.Models.Context
             modelBuilder.Entity<Ticket>().ToTable("Tickets");
             modelBuilder.Entity<Message>().ToTable("Messages");
             modelBuilder.Entity<Attachment>().ToTable("Attachments");
+            modelBuilder.Entity<TicketUser>().ToView("Tickets_Username").HasKey(t => t.Id);
 
             modelBuilder.Entity<Ticket>()
                 .HasMany(t => t.Messages)
