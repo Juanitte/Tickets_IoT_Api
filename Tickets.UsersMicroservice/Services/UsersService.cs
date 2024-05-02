@@ -511,7 +511,7 @@ namespace Tickets.UsersMicroservice.Services
         {
             try
             {
-                var users = _unitOfWork.UsersRepository.GetAll(user => user.Role == "SupportTechnician");
+                var users = await _unitOfWork.UsersRepository.GetAll(user => user.Role == "SupportTechnician").ToListAsync();
                 var result = users.Select(u => Extensions.ConvertModel(u, new UserDto())).ToList();
                 return result;
             }

@@ -237,7 +237,7 @@ namespace Tickets.UsersMicroservice.Controllers
         {
             try
             {
-                var result = IoTServiceUsers.GetTechnicians();
+                var result = await IoTServiceUsers.GetTechnicians();
                 
                 return new JsonResult(result);
             }

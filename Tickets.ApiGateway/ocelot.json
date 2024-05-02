@@ -187,6 +187,25 @@
     },
 
     {
+      "DownstreamPathTemplate": "/tickets/getallwithnames",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/tickets/getallwithnames",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "Role": "SupportManager"
+      }
+    },
+
+    {
       "DownstreamPathTemplate": "/tickets/getallfilter",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -215,6 +234,19 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/tickets/getbyid/{id}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/tickets/getbyidwithname/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/tickets/getbyidwithname/{id}",
       "UpstreamHttpMethod": [ "GET" ]
     },
 
@@ -327,6 +359,22 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/tickets/getbyuser/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/tickets/getbyuserwithnames/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/tickets/getbyuserwithnames/{userId}",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"

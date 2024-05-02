@@ -104,7 +104,6 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
         {
             try
             {
-                Console.WriteLine(_dbSet.Count());
                 return _dbSet.AsNoTracking();
             }
             catch (Exception e)

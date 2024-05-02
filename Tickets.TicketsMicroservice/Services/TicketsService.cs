@@ -108,6 +108,20 @@ namespace Tickets.TicketsMicroservice.Services
         /// <param name="email">el email destino</param>
         /// <param name="link">el enlace de seguimiento</param>
         public bool SendMail(string email, string link);
+
+        /// <summary>
+        ///     Obtiene la incidencia cuyo id se pasa como parámetro
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Task<TicketUser> GetWithName(int id);
+
+        /// <summary>
+        ///     Obtiene las incidencias asignadas al usuario cuyo id se pasa como parámetro
+        /// </summary>
+        /// <param name="userId">el id del usuario</param>
+        /// <returns>una lista con las incidencias <see cref="TicketUser"/></returns>
+        public IEnumerable<TicketUser> GetByUserWithNames(int userId);
     }
     public class TicketsService : BaseService , ITicketsService
     {
@@ -319,6 +333,24 @@ namespace Tickets.TicketsMicroservice.Services
         }
 
         /// <summary>
+        ///     Obtiene la incidencia cuyo id se pasa como parámetro
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<TicketUser> GetWithName(int id)
+        {
+            try
+            {
+                return await Task.FromResult(_unitOfWork.TicketUserRepository.GetFirst(g => g.Id.Equals(id)));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "TicketsService.GetWithName =>");
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Obtiene todas las incidencias
         /// </summary>
         /// <returns></returns>
@@ -327,7 +359,6 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var tickets = await _unitOfWork.TicketsRepository.GetAll().ToListAsync();
-                Console.WriteLine(tickets.Count);
                 List<TicketDto> result = tickets.Select(t => Extensions.ConvertModel(t, new TicketDto())).ToList();
                 return result;
             }
@@ -366,37 +397,37 @@ namespace Tickets.TicketsMicroservice.Services
             {
                 var response = new ResponseFilterTicketDto();
 
-                //Obtener incidencias filtradas por estado
+                //Filtrar por estado
                 var byStatusQuery = (int)filter.Status == -1
-                    ? _unitOfWork.TicketsRepository.GetAll()
-                    : _unitOfWork.TicketsRepository.GetFiltered("Status", filter.Status, FilterType.equals);
+                    ? _unitOfWork.TicketUserRepository.GetAll()
+                    : _unitOfWork.TicketUserRepository.GetFiltered("Status", filter.Status, FilterType.equals);
 
                 // Filtrar por prioridad
                 var byPriorityQuery = (int)filter.Priority == -1
-                    ? _unitOfWork.TicketsRepository.GetAll()
-                    : _unitOfWork.TicketsRepository.GetFiltered("Priority", filter.Priority, FilterType.equals);
+                    ? _unitOfWork.TicketUserRepository.GetAll()
+                    : _unitOfWork.TicketUserRepository.GetFiltered("Priority", filter.Priority, FilterType.equals);
 
                 // Filtrar por id de técnico
                 var byUserQuery = filter.UserId == 0
-                    ? _unitOfWork.TicketsRepository.GetAll()
-                    : GetByUser(filter.UserId).AsQueryable();
+                    ? _unitOfWork.TicketUserRepository.GetAll()
+                    : GetByUserWithNames(filter.UserId).AsQueryable();
 
                 // Filtrar por fecha
                 var byStartDateQuery = filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1))
-                    ? _unitOfWork.TicketsRepository.GetAll()
-                    : _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.Timestamp <= filter.End);
+                    ? _unitOfWork.TicketUserRepository.GetAll()
+                    : _unitOfWork.TicketUserRepository.GetAll().Where(ticket => ticket.Timestamp <= filter.End);
 
                 var byEndDateQuery = filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1))
-                    ? _unitOfWork.TicketsRepository.GetAll()
-                    : _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.Timestamp >= filter.Start);
+                    ? _unitOfWork.TicketUserRepository.GetAll()
+                    : _unitOfWork.TicketUserRepository.GetAll().Where(ticket => ticket.Timestamp >= filter.Start);
 
                 // Filtrar por texto introducido
                 var bySearchStringQuery = string.IsNullOrEmpty(filter.SearchString)
-                    ? _unitOfWork.TicketsRepository.GetAll()
-                    : _unitOfWork.TicketsRepository.GetFiltered(filter.SearchString);
+                    ? _unitOfWork.TicketUserRepository.GetAll()
+                    : _unitOfWork.TicketUserRepository.GetFiltered(filter.SearchString);
 
                 // Unir todas las consultas filtradas
-                var filteredTickets = new List<List<Ticket>>
+                var filteredTickets = new List<List<TicketUser>>
                 {
                     byStatusQuery.ToList(),
                     byPriorityQuery.ToList(),
@@ -411,6 +442,8 @@ namespace Tickets.TicketsMicroservice.Services
                     .Aggregate((previousList, nextList) => previousList.Intersect(nextList).ToList());
 
                 response.Tickets = result.Select(s => s.ToResumeDto()).ToList();
+                Console.WriteLine("Filtrado");
+                Console.WriteLine(response.Tickets.Count);
 
                 return response;
             }
@@ -436,6 +469,25 @@ namespace Tickets.TicketsMicroservice.Services
             catch (Exception e)
             {
                 _logger.LogError(e, "TicketsService.GetByUser => ");
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     Obtiene las incidencias asignadas al usuario cuyo id se pasa como parámetro
+        /// </summary>
+        /// <param name="userId">el id del usuario</param>
+        /// <returns>una lista con las incidencias <see cref="TicketUser"/></returns>
+        public IEnumerable<TicketUser> GetByUserWithNames(int userId)
+        {
+            try
+            {
+                var tickets = _unitOfWork.TicketUserRepository.GetAll().Where(ticket => ticket.UserId == userId).Distinct().ToList();
+                return tickets;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "TicketsService.GetByUserWithNames => ");
                 throw;
             }
         }
