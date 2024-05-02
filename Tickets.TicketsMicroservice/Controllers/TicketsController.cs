@@ -107,6 +107,25 @@ namespace Tickets.TicketsMicroservice.Controllers
         }
 
         /// <summary>
+        ///     Método que obtiene una incidencia según su id
+        /// </summary>
+        /// <param name="id">El id de la incidencia a buscar</param>
+        /// <returns></returns>
+        [HttpGet("tickets/getbyidwithname/{id}")]
+        public async Task<JsonResult> GetByIdWithName(int id)
+        {
+            try
+            {
+                var ticket = await IoTServiceTickets.GetWithName(id);
+                return new JsonResult(ticket);
+            }
+            catch (Exception e)
+            {
+                return new JsonResult(new CreateTicketDataDto());
+            }
+        }
+
+        /// <summary>
         ///     Método que crea una nueva incidencia
         /// </summary>
         /// <param name="createTicket"><see cref="CreateTicketDto"/> con los datos de la incidencia</param>
@@ -244,6 +263,25 @@ namespace Tickets.TicketsMicroservice.Controllers
             try
             {
                 var tickets = IoTServiceTickets.GetByUser(userId);
+                return new JsonResult(tickets);
+            }
+            catch (Exception e)
+            {
+                return new JsonResult(new CreateTicketDataDto());
+            }
+        }
+
+        /// <summary>
+        ///     Obtiene las incidencias pertenecientes a un usuario cuyo id se pasa como parámetro
+        /// </summary>
+        /// <param name="userId">el id del usuario</param>
+        /// <returns><see cref="JsonResult"/> con los datos de los tickets</returns>
+        [HttpGet("/tickets/getbyuserwithnames/{userId}")]
+        public async Task<JsonResult> GetByUserWithNames(int userId)
+        {
+            try
+            {
+                var tickets = IoTServiceTickets.GetByUserWithNames(userId);
                 return new JsonResult(tickets);
             }
             catch (Exception e)

@@ -1,5 +1,6 @@
 ﻿using Common.Utilities;
 using System.ComponentModel.DataAnnotations.Schema;
+using Tickets.TicketsMicroservice.Models.Entities;
 
 namespace Tickets.TicketsMicroservice.Models.Dtos.EntityDto
 {
@@ -33,6 +34,32 @@ namespace Tickets.TicketsMicroservice.Models.Dtos.EntityDto
             this.HasNewMessages = false;
             this.NewMessagesCount = 0;
             this.FullName = string.Empty;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var other = (TicketUser)obj;
+
+            return Id == other.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        /// <summary>
+        ///     Convierte el modelo en un objeto dto
+        /// </summary>
+        /// <returns></returns>
+        public TicketResumeDto ToResumeDto()
+        {
+            return this.ConvertModel(new TicketResumeDto());
         }
     }
 }

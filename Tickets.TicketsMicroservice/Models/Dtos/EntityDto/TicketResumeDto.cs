@@ -13,6 +13,7 @@ namespace Tickets.TicketsMicroservice.Models.Dtos.EntityDto
         public Status Status { get; set; }
         public DateTime Timestamp { get; set; }
         public int UserId { get; set; }
+        public string FullName { get; set; }
 
         public override bool Equals(object obj)
         {
