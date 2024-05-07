@@ -260,10 +260,10 @@ namespace Tickets.UsersMicroservice.Controllers
             try
             {
                 IoTServiceUsers.SendMail(username, domain, tld);
-                return Ok();
+                return Ok(true);
             } catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(false);
             }
         }
 
@@ -282,13 +282,13 @@ namespace Tickets.UsersMicroservice.Controllers
                 {
                     if(await IoTServiceIdentity.UpdateUserPassword(user, resetPass.Password))
                     {
-                        return Ok();
+                        return Ok(true);
                     }
                 }
-                return BadRequest();
+                return BadRequest(false);
             }catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(false);
             }
         }
 
