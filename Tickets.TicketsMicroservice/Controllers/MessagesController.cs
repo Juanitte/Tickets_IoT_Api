@@ -79,7 +79,7 @@ namespace Tickets.TicketsMicroservice.Controllers
 
                 response = await IoTServiceMessages.Create(createMessage);
 
-                return Ok(createMessage);
+                return Ok(true);
             }
             catch(Exception e)
             {

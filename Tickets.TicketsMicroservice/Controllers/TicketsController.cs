@@ -137,7 +137,7 @@ namespace Tickets.TicketsMicroservice.Controllers
             {
                 var result = await IoTServiceTickets.Create(createTicket);
 
-                return Ok(result);
+                return Ok(true);
             }
             catch (Exception e)
             {
@@ -160,7 +160,7 @@ namespace Tickets.TicketsMicroservice.Controllers
 
                 if (result != null)
                 {
-                    return Ok(result);
+                    return Ok(true);
                 }
                 else
                 {
@@ -186,9 +186,9 @@ namespace Tickets.TicketsMicroservice.Controllers
             var result = await IoTServiceTickets.ChangePriority(ticketId, (Priorities)priority);
             if (result)
             {
-                return Ok();
+                return Ok(true);
             }
-            return BadRequest();
+            return BadRequest(false);
         }
 
         /// <summary>
@@ -204,9 +204,9 @@ namespace Tickets.TicketsMicroservice.Controllers
             var result = await IoTServiceTickets.ChangeStatus(ticketId, (Status)status);
             if (result)
             {
-                return Ok();
+                return Ok(true);
             }
-            return BadRequest();
+            return BadRequest(false);
         }
 
         /// <summary>
@@ -222,9 +222,9 @@ namespace Tickets.TicketsMicroservice.Controllers
             var result = await IoTServiceTickets.AsignTicket(ticketId, userId);
             if (result)
             {
-                return Ok();
+                return Ok(true);
             }
-            return BadRequest();
+            return BadRequest(false);
         }
 
         /// <summary>
