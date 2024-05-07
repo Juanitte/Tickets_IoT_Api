@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Attachment = Tickets.TicketsMicroservice.Models.Entities.Attachment;
 using System.Text;
 using System.Security.Cryptography;
+using Tickets.TicketsMicroservice.Utilities;
 
 namespace Tickets.TicketsMicroservice.Services
 {
@@ -251,7 +252,7 @@ namespace Tickets.TicketsMicroservice.Services
                             {
                                 if (attachment != null)
                                 {
-                                    string attachmentPath = await SaveAttachmentToFileSystem(attachment, ticket.Id);
+                                    string attachmentPath = await Utils.SaveAttachmentToFileSystem(attachment, ticket.Id);
                                     Attachment newAttachment = new Attachment(attachmentPath, message.Id);
                                     message.AttachmentPaths.Add(newAttachment);
                                 }
@@ -262,6 +263,7 @@ namespace Tickets.TicketsMicroservice.Services
                         ticket.NewMessagesCount++;
 
                         _unitOfWork.TicketsRepository.Update(ticket);
+                        await _unitOfWork.SaveChanges();
                         string hashedId = Hash(ticket.Id.ToString());
 
                         var isSent = SendMail(ticket.Email, string.Concat("http://localhost:4200/enlace/", hashedId, "/", ticket.Id));
@@ -564,30 +566,6 @@ namespace Tickets.TicketsMicroservice.Services
         #endregion
 
         #region Métodos privados
-
-        /// <summary>
-        ///     Guarda un archivo adjunto en el sistema de archivos
-        /// </summary>
-        /// <param name="attachment"><see cref="IFormFile"/> con los datos del archivo adjunto a guardar</param>
-        /// <returns>la ruta del archivo guardado</returns>
-        private async Task<string> SaveAttachmentToFileSystem(IFormFile attachment, int ticketId)
-        {
-            var fileName = Path.GetFileNameWithoutExtension(attachment.FileName) + "_" + DateTime.Now.ToString() + Path.GetExtension(attachment.FileName);
-            string directoryPath = Path.Combine("C:/ProyectoIoT/Back/ApiTest/AttachmentStorage/", ticketId.ToString());
-            string filePath = Path.Combine(directoryPath, fileName);
-
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await attachment.CopyToAsync(stream);
-            }
-
-            return filePath;
-        }
 
         /// <summary>
         ///     Hashea un texto
