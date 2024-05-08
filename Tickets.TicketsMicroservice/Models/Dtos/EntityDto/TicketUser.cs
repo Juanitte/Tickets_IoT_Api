@@ -1,14 +1,18 @@
 ﻿using Common.Utilities;
 using System.ComponentModel.DataAnnotations.Schema;
 using Tickets.TicketsMicroservice.Models.Entities;
+using static Common.Attributes.ModelAttributes;
 
 namespace Tickets.TicketsMicroservice.Models.Dtos.EntityDto
 {
     public class TicketUser
     {
         public int Id { get; set; }
+        [Filters]
         public string Title { get; set; }
+        [Filters]
         public string Name { get; set; }
+        [Filters]
         public string Email { get; set; }
         public DateTime Timestamp { get; set; }
         public int? UserId { get; set; }
@@ -18,6 +22,7 @@ namespace Tickets.TicketsMicroservice.Models.Dtos.EntityDto
         public bool HasNewMessages { get; set; }
         public int NewMessagesCount { get; set; }
         [Column("FullName")]
+        [Filters]
         public string FullName { get; set; }
 
         public TicketUser()
