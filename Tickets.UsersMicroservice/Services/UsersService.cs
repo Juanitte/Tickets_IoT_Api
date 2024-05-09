@@ -480,7 +480,7 @@ namespace Tickets.UsersMicroservice.Services
                 string hashedEmail = Hash(email);
                 if (user != null)
                 {
-                    var link = string.Concat("http://localhost:4200/recuperar/", hashedEmail, "/", username, "/", domain, "/", tld);
+                    var link = string.Concat("http://localhost:4200/recover/", hashedEmail, "/", username, "/", domain, "/", tld);
 
                     var message = new MimeMessage();
                     message.From.Add(new MailboxAddress("IoT Incidencias", "noreply.iot.incidencias@gmail.com"));

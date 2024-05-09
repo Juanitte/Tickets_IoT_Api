@@ -266,7 +266,7 @@ namespace Tickets.TicketsMicroservice.Services
                         await _unitOfWork.SaveChanges();
                         string hashedId = Hash(ticket.Id.ToString());
 
-                        var isSent = SendMail(ticket.Email, string.Concat("http://localhost:4200/enlace/", hashedId, "/", ticket.Id));
+                        var isSent = SendMail(ticket.Email, string.Concat("http://localhost:4200/link/", hashedId, "/", ticket.Id));
                     }
                 }
                 else
