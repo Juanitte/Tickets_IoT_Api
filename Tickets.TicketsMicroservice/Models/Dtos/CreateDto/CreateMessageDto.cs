@@ -6,6 +6,7 @@
         public string Content { get; set; }
         public List<IFormFile?> Attachments { get; set; }
         public int TicketId { get; set; }
+        public bool IsTechnician { get; set; }
 
         public CreateMessageDto()
         {
@@ -15,20 +16,22 @@
             TicketId = 0;
         }
 
-        public CreateMessageDto(string author, string content, int ticketId)
+        public CreateMessageDto(string author, string content, int ticketId, bool isTechnician)
         {
             Author = author;
             Content = content;
             Attachments = new List<IFormFile?>();
             TicketId = ticketId;
+            IsTechnician = isTechnician;
         }
 
-        public CreateMessageDto(string author, string content, List<IFormFile?> attachments, int ticketId)
+        public CreateMessageDto(string author, string content, List<IFormFile?> attachments, int ticketId, bool isTechnician)
         {
             Author = author;
             Content = content;
             Attachments = attachments;
             TicketId = ticketId;
+            IsTechnician = isTechnician;
         }
     }
 }

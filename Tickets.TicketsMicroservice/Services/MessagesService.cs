@@ -127,9 +127,13 @@ namespace Tickets.TicketsMicroservice.Services
                 Ticket ticket = await _unitOfWork.TicketsRepository.Get(createMessage.TicketId);
                 if (ticket != null)
                 {
-                    ticket.HasNewMessages = true;
-                    ticket.NewMessagesCount++;
-                    _unitOfWork.TicketsRepository.Update(ticket);
+                    if (!createMessage.IsTechnician)
+                    {
+                        ticket.HasNewMessages = true;
+                        ticket.NewMessagesCount++;
+                        _unitOfWork.TicketsRepository.Update(ticket);
+                        await _unitOfWork.SaveChanges();
+                    }
                 }
 
                 return response;
