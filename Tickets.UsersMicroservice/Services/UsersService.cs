@@ -475,18 +475,18 @@ namespace Tickets.UsersMicroservice.Services
                 string hashedEmail = Hash(email);
                 if (user != null)
                 {
-                    var link = string.Concat("http://localhost:4200/recover/", hashedEmail, "/", username, "/", domain, "/", tld);
+                    var link = string.Concat(Literals.Link_Recover, hashedEmail, "/", username, "/", domain, "/", tld);
 
                     var message = new MimeMessage();
-                    message.From.Add(new MailboxAddress("IoT Incidencias", "noreply.iot.incidencias@gmail.com"));
+                    message.From.Add(new MailboxAddress(Literals.Email_Name, Literals.Email_Address));
                     message.To.Add(new MailboxAddress("", email));
                     message.Subject = Translation_Account.Email_title;
                     message.Body = new TextPart("plain") { Text = string.Concat(Translation_Account.Email_body, "\n", link) };
 
                     using (var client = new MailKit.Net.Smtp.SmtpClient())
                     {
-                        client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                        client.Authenticate("noreply.iot.incidencias@gmail.com", "levp dwqb qacd vhle");
+                        client.Connect(Literals.Email_Service, Literals.Email_Port, SecureSocketOptions.StartTls);
+                        client.Authenticate(Literals.Email_Address, Literals.Email_Auth);
                         client.Send(message);
                         client.Disconnect(true);
                     }

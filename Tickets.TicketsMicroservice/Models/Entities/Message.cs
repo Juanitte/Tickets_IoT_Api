@@ -13,6 +13,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
         public string Content { get; set; }
         public DateTime Timestamp { get; set; }
         public List<Attachment?> AttachmentPaths { get; set; } = new List<Attachment?>();
+        public bool IsTechnician { get; set; }
         public int TicketId { get; set; }
         [ForeignKey("TicketId")]
         public Ticket? Ticket { get; set; }
@@ -25,6 +26,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Timestamp = DateTime.Now;
             TicketId = 0;
             Ticket = null;
+            IsTechnician = false;
         }
 
         public Message(string content, string author, int ticketId)
@@ -35,9 +37,21 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             this.Timestamp = DateTime.Now;
             TicketId = ticketId;
             Ticket = null;
+            IsTechnician = false;
         }
 
-        public Message(string content, string author, List<Attachment?> attachmentPaths, int ticketId)
+        public Message(string content, string author, int ticketId, bool isTechnician)
+        {
+            Id= 0;
+            Author = author;
+            Content = content;
+            this.Timestamp = DateTime.Now;
+            TicketId = ticketId;
+            Ticket = null;
+            IsTechnician = isTechnician;
+        }
+
+        public Message(string content, string author, List<Attachment?> attachmentPaths, int ticketId, bool isTechnician)
         {
             Id = 0;
             Author = author;
@@ -46,6 +60,7 @@ namespace Tickets.TicketsMicroservice.Models.Entities
             AttachmentPaths = attachmentPaths;
             TicketId = ticketId;
             Ticket = null;
+            IsTechnician = isTechnician;
         }
     }
 }

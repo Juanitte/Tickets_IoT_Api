@@ -40,5 +40,22 @@ namespace Common.Utilities
         public static string Claim_PhoneNumber = "PhoneNumber";
 
         #endregion
+
+        #region Datos email
+
+        public static string Email_Name = "IoT Incidencias";
+        public static string Email_Address = "noreply.iot.incidencias@gmail.com";
+        public static string Email_Auth = "levp dwqb qacd vhle";
+        public static string Email_Service = "smtp.gmail.com";
+        public static int Email_Port = 587;
+
+        #endregion
+
+        #region Enlaces
+
+        public static string Link_Recover = "http://localhost:4200/recover/";
+        public static string Link_Review = "http://localhost:4200/link/";
+
+        #endregion
     }
 }
