@@ -1,11 +1,14 @@
 ﻿using Common.Utilities;
+using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MimeKit;
 using System.Net.Sockets;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
 using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Entities;
 using Tickets.TicketsMicroservice.Models.UnitsOfWork;
+using Tickets.TicketsMicroservice.Translations;
 using Tickets.TicketsMicroservice.Utilities;
 
 namespace Tickets.TicketsMicroservice.Services
@@ -83,25 +86,18 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var response = new CreateEditRemoveResponseDto();
-
+                Console.WriteLine(createMessage.IsTechnician);
                 Message message;
-                if (createMessage.Attachments.IsNullOrEmpty())
+                message = new Message(createMessage.Content, createMessage.Author, createMessage.TicketId, createMessage.IsTechnician);
+                if (!createMessage.Attachments.IsNullOrEmpty())
                 {
-                    message = new Message(createMessage.Content, createMessage.Author, createMessage.TicketId);
-                }
-                else
-                {
-                    message = new Message(createMessage.Content, createMessage.Author, createMessage.TicketId);
-                    if (!createMessage.Attachments.IsNullOrEmpty())
+                    foreach (var attachment in createMessage.Attachments)
                     {
-                        foreach (var attachment in createMessage.Attachments)
+                        if (attachment != null)
                         {
-                            if (attachment != null)
-                            {
-                                string attachmentPath = await Utils.SaveAttachmentToFileSystem(attachment, createMessage.TicketId);
-                                Attachment newAttachment = new Attachment(attachmentPath, message.Id);
-                                message.AttachmentPaths.Add(newAttachment);
-                            }
+                            string attachmentPath = await Utils.SaveAttachmentToFileSystem(attachment, createMessage.TicketId);
+                            Attachment newAttachment = new Attachment(attachmentPath, message.Id);
+                            message.AttachmentPaths.Add(newAttachment);
                         }
                     }
                 }
@@ -115,8 +111,8 @@ namespace Tickets.TicketsMicroservice.Services
                 }
                 if (_unitOfWork.MessagesRepository.Add(message) != null)
                 {
-                    await _unitOfWork.SaveChanges();
                     response.IsSuccess(message.Id);
+                    await _unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -125,8 +121,10 @@ namespace Tickets.TicketsMicroservice.Services
                 }
 
                 Ticket ticket = await _unitOfWork.TicketsRepository.Get(createMessage.TicketId);
+                Console.WriteLine(ticket != null);
                 if (ticket != null)
                 {
+                    Console.WriteLine(!createMessage.IsTechnician);
                     if (!createMessage.IsTechnician)
                     {
                         ticket.HasNewMessages = true;
@@ -134,7 +132,29 @@ namespace Tickets.TicketsMicroservice.Services
                         _unitOfWork.TicketsRepository.Update(ticket);
                         await _unitOfWork.SaveChanges();
                     }
+                    else
+                    {
+                        var ticketMessages = await GetByTicket(ticket.Id);
+                        ticketMessages = ticketMessages.FindAll(t => t.IsTechnician);
+
+                        if (ticketMessages.Any())
+                        {
+                            var coolDownDateTime = ticketMessages.Last().Timestamp.AddHours(1);
+
+                            if (DateTime.Now >= coolDownDateTime)
+                            {
+                                string hashedId = Utils.Hash(ticket.Id.ToString());
+                                var isSent = SendMail(ticket.Email, string.Concat(Literals.Link_Review, hashedId, "/", ticket.Id));
+                            }
+                        }
+                        else
+                        {
+                            string hashedId = Utils.Hash(ticket.Id.ToString());
+                            var isSent = SendMail(ticket.Email, string.Concat(Literals.Link_Review, hashedId, "/", ticket.Id));
+                        }
+                    }
                 }
+
 
                 return response;
             }
@@ -363,6 +383,38 @@ namespace Tickets.TicketsMicroservice.Services
             {
                 _logger.LogError(ticketId, "MessagesService.RemoveByTicket => ");
                 throw;
+            }
+        }
+
+        /// <summary>
+        ///     Envía un email
+        /// </summary>
+        /// <param name="email">el email destino</param>
+        /// <param name="link">el enlace de seguimiento</param>
+        /// <returns></returns>
+        public bool SendMail(string email, string link)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(Literals.Email_Name, Literals.Email_Address));
+                message.To.Add(new MailboxAddress("", email));
+                message.Subject = Translation_Messages.Email_title;
+                message.Body = new TextPart("plain") { Text = string.Concat(Translation_Messages.Email_body, "\n", link) };
+
+                using (var client = new MailKit.Net.Smtp.SmtpClient())
+                {
+                    client.Connect(Literals.Email_Service, Literals.Email_Port, SecureSocketOptions.StartTls);
+                    client.Authenticate(Literals.Email_Address, Literals.Email_Auth);
+                    client.Send(message);
+                    client.Disconnect(true);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Send Mail => ");
+                return false;
             }
         }
 

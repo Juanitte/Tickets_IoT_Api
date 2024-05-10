@@ -61,6 +61,24 @@ namespace Tickets.TicketsMicroservice.Translations {
         }
         
         /// <summary>
+        ///   Busca una cadena traducida similar a A technician just sent a message to the following ticket: .
+        /// </summary>
+        public static string Email_body {
+            get {
+                return ResourceManager.GetString("Email_body", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Busca una cadena traducida similar a New message.
+        /// </summary>
+        public static string Email_title {
+            get {
+                return ResourceManager.GetString("Email_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Busca una cadena traducida similar a Error creating message.
         /// </summary>
         public static string Error_create_message {

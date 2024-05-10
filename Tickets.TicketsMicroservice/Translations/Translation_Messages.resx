@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Email_body" xml:space="preserve">
+    <value>A technician just sent a message to the following ticket: </value>
+  </data>
+  <data name="Email_title" xml:space="preserve">
+    <value>New message</value>
+  </data>
   <data name="Error_create_message" xml:space="preserve">
     <value>Error creating message</value>
   </data>

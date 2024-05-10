@@ -264,9 +264,9 @@ namespace Tickets.TicketsMicroservice.Services
 
                         _unitOfWork.TicketsRepository.Update(ticket);
                         await _unitOfWork.SaveChanges();
-                        string hashedId = Hash(ticket.Id.ToString());
+                        string hashedId = Utils.Hash(ticket.Id.ToString());
 
-                        var isSent = SendMail(ticket.Email, string.Concat("http://localhost:4200/link/", hashedId, "/", ticket.Id));
+                        var isSent = SendMail(ticket.Email, string.Concat(Literals.Link_Review, hashedId, "/", ticket.Id));
                     }
                 }
                 else
@@ -543,15 +543,15 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("IoT Incidencias", "noreply.iot.incidencias@gmail.com"));
+                message.From.Add(new MailboxAddress(Literals.Email_Name, Literals.Email_Address));
                 message.To.Add(new MailboxAddress("", email));
                 message.Subject = Translation_Tickets.Email_title;
                 message.Body = new TextPart("plain") { Text = string.Concat(Translations.Translation_Tickets.Email_body, "\n", link) };
 
                 using (var client = new MailKit.Net.Smtp.SmtpClient())
                 {
-                    client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    client.Authenticate("noreply.iot.incidencias@gmail.com", "levp dwqb qacd vhle");
+                    client.Connect(Literals.Email_Service, Literals.Email_Port, SecureSocketOptions.StartTls);
+                    client.Authenticate(Literals.Email_Address, Literals.Email_Auth);
                     client.Send(message);
                     client.Disconnect(true);
                     return true;
@@ -560,29 +560,6 @@ namespace Tickets.TicketsMicroservice.Services
             {
                 _logger.LogError(e, "Send Mail => ");
                 return false;
-            }
-        }
-
-        #endregion
-
-        #region Métodos privados
-
-        /// <summary>
-        ///     Hashea un texto
-        /// </summary>
-        /// <param name="text">el texto a hashear</param>
-        /// <returns></returns>
-        public static string Hash(string text)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
-                StringBuilder builder = new StringBuilder();
-                foreach (byte b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
             }
         }
 
