@@ -38,6 +38,12 @@ namespace Tickets.TicketsMicroservice.Services
         public Task<List<TicketUser>> GetAllWithNames();
 
         /// <summary>
+        ///     Obtiene todas las incidencias sin terminar
+        /// </summary>
+        /// <returns>una lista de incidencias <see cref="Ticket"/></returns>
+        public Task<List<TicketDto>> GetNoFinished();
+
+        /// <summary>
         ///     Obtiene la incidencia cuyo id se ha pasado como parámetro
         /// </summary>
         /// <param name="id">el id de la incidencia a buscar</param>
@@ -390,6 +396,26 @@ namespace Tickets.TicketsMicroservice.Services
         }
 
         /// <summary>
+        ///     Obtiene todas las incidencias sin terminar
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<TicketDto>> GetNoFinished()
+        {
+            try
+            {
+                var tickets = await _unitOfWork.TicketsRepository.GetAll().Where(t => t.Status != Status.FINISHED).ToListAsync();
+                Console.WriteLine(tickets.Count);
+                List<TicketDto> result = tickets.Select(t => Extensions.ConvertModel(t, new TicketDto())).ToList();
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "TicketsService.GetNoFinished => ");
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Obtiene las incidencias filtradas
         /// </summary>
         /// <returns></returns>
@@ -444,8 +470,6 @@ namespace Tickets.TicketsMicroservice.Services
                     .Aggregate((previousList, nextList) => previousList.Intersect(nextList).ToList());
 
                 response.Tickets = result.Select(s => s.ToResumeDto()).ToList();
-                Console.WriteLine("Filtrado");
-                Console.WriteLine(response.Tickets.Count);
 
                 return response;
             }

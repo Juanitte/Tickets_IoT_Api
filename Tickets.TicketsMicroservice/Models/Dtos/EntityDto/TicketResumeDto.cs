@@ -14,6 +14,8 @@ namespace Tickets.TicketsMicroservice.Models.Dtos.EntityDto
         public DateTime Timestamp { get; set; }
         public int UserId { get; set; }
         public string FullName { get; set; }
+        public bool HasNewMessages { get; set; }
+        public int NewMessagesCount { get; set; }
 
         public override bool Equals(object obj)
         {

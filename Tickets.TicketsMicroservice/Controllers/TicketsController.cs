@@ -70,6 +70,25 @@ namespace Tickets.TicketsMicroservice.Controllers
         }
 
         /// <summary>
+        ///     Método que obtiene todas las incidencias sin terminar
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("tickets/getnofinished")]
+        public async Task<IActionResult> GetNoFinished()
+        {
+            try
+            {
+                var tickets = await IoTServiceTickets.GetNoFinished();
+
+                return new JsonResult(tickets);
+            }
+            catch (Exception e)
+            {
+                return new JsonResult(new List<CreateTicketDataDto>());
+            }
+        }
+
+        /// <summary>
         ///     Método que obtiene todas las incidencias filtradas
         /// </summary>
         /// <returns></returns>
