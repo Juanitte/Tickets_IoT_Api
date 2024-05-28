@@ -206,6 +206,22 @@
     },
 
     {
+      "DownstreamPathTemplate": "/tickets/getnofinished",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7027
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/tickets/getnofinished",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
+    },
+
+    {
       "DownstreamPathTemplate": "/tickets/getallfilter",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -218,9 +234,6 @@
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
-      },
-      "RouteClaimsRequirement": {
-        "Role": "SupportManager"
       }
     },
 
