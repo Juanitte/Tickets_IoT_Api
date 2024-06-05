@@ -512,7 +512,8 @@ namespace Tickets.UsersMicroservice.Services
                         PhoneNumberConfirmed = true,
                         LockoutEnabled = false,
                         LockoutEnd = null,
-                        Role = Literals.Role_SupportManager
+                        Role = Literals.Role_SupportManager,
+                        Language = Language.Spanish
                     };
 
                     var result = _userManager.CreateAsync(user, password).Result;
