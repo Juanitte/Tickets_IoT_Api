@@ -121,18 +121,16 @@ namespace Tickets.TicketsMicroservice.Services
                 }
 
                 Ticket ticket = await _unitOfWork.TicketsRepository.Get(createMessage.TicketId);
-                Console.WriteLine(ticket != null);
                 if (ticket != null)
                 {
-                    Console.WriteLine(!createMessage.IsTechnician);
-                    if (!createMessage.IsTechnician)
+                    if (!createMessage.IsTechnician && ticket.Status != Status.FINISHED)
                     {
                         ticket.HasNewMessages = true;
                         ticket.NewMessagesCount++;
                         _unitOfWork.TicketsRepository.Update(ticket);
                         await _unitOfWork.SaveChanges();
                     }
-                    else
+                    else if(ticket.Status != Status.FINISHED)
                     {
                         var ticketMessages = await GetByTicket(ticket.Id);
                         ticketMessages = ticketMessages.FindAll(t => t.IsTechnician);
