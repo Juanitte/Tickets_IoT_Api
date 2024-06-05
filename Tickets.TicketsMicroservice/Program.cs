@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using RequestFiltering.Services;
 using Serilog;
@@ -137,10 +138,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-else
+
+using (var scope = app.Services.CreateScope())
 {
-    var context = app.Services.GetRequiredService<TicketsDbContext>();
-    context.Database.Migrate();
+    var serviceProvider = scope.ServiceProvider;
+    var dbContext = serviceProvider.GetRequiredService<TicketsDbContext>();
+    dbContext.Database.Migrate();
 }
 
 app.UseHttpsRedirection();

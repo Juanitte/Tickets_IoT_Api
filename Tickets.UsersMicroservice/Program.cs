@@ -256,10 +256,11 @@ using (var scope = app.Services.CreateScope())
     var dbContext = serviceProvider.GetRequiredService<UsersDbContext>();
     var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-    var identitiesService = (IdentitiesService)serviceProvider.GetService(typeof(IIdentitiesService));
-
     // Apply migrations and make sure that the default users and roles have been created
     dbContext.Database.Migrate();
+    var identitiesService = (IdentitiesService)serviceProvider.GetService(typeof(IIdentitiesService));
+
+    
 }
 
 #endregion
