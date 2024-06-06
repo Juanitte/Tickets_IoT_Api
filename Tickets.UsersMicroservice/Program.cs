@@ -205,6 +205,7 @@ builder.Services.AddIdentity<User, IdentityRole<int>>()
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Lockout.AllowedForNewUsers = false;
+    options.User.RequireUniqueEmail = true;
 });
 
 #endregion
