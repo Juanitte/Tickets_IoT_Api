@@ -93,7 +93,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="messageId">El id del mensaje a editar</param>
         /// <param name="newMessage"><see cref="CreateMessageDto"/> con los nuevos datos del mensaje</param>
         /// <returns></returns>
-        [HttpPut("messages/update/{messageId}")]
+        [HttpPost("messages/update/{messageId}")]
         public async Task<IActionResult> Update(int messageId, CreateMessageDto newMessage)
         {
             try

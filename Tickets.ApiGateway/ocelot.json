@@ -83,7 +83,7 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/Users/users/update/{userId}",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
@@ -99,7 +99,7 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/Users/users/changelanguage/{userId}",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
@@ -283,7 +283,7 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/tickets/update/{ticketId}",
-      "UpstreamHttpMethod": [ "PUT" ]
+      "UpstreamHttpMethod": [ "POST" ]
     },
 
     {
@@ -296,7 +296,7 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/tickets/changepriority/{ticketId}/{priority}",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       },
@@ -315,7 +315,7 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/tickets/changestatus/{ticketId}/{status}",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
@@ -331,7 +331,7 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/tickets/asign/{ticketId}/{userId}",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       },
@@ -441,7 +441,7 @@
         }
       ],
       "UpstreamPathTemplate": "/gateway/messages/update/{messageId}",
-      "UpstreamHttpMethod": [ "PUT" ]
+      "UpstreamHttpMethod": [ "POST" ]
     },
 
     {

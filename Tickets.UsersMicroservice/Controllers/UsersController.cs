@@ -159,7 +159,7 @@ namespace Tickets.UsersMicroservice.Controllers
         /// <param name="userId">El id del usuario a editar</param>
         /// <param name="user"><see cref="CreateUserDto"/> con los nuevos datos de usuario</param>
         /// <returns></returns>
-        [HttpPut("users/update/{userId}")]
+        [HttpPost("users/update/{userId}")]
         public async Task<IActionResult> Update(int userId, CreateUserDto userDto)
         {
             try

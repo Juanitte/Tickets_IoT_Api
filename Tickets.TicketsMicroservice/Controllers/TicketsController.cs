@@ -170,7 +170,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a editar</param>
         /// <param name="ticket"><see cref="CreateTicketDataDto"/> con los nuevos datos de la incidencia</param>
         /// <returns></returns>
-        [HttpPut("tickets/update/{ticketId}")]
+        [HttpPost("tickets/update/{ticketId}")]
         public async Task<IActionResult> Update(int ticketId, [FromBody] CreateTicketDataDto newTicket)
         {
             try
@@ -198,7 +198,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a modificar</param>
         /// <param name="priority">el valor de la prioridad</param>
         /// <returns></returns>
-        [HttpPut("tickets/changepriority/{ticketId}/{priority}")]
+        [HttpPost("tickets/changepriority/{ticketId}/{priority}")]
         public async Task<IActionResult> ChangePriority(int ticketId, int priority)
         {
             
@@ -216,7 +216,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a modificar</param>
         /// <param name="status">el valor del estado</param>
         /// <returns></returns>
-        [HttpPut("tickets/changestatus/{ticketId}/{status}")]
+        [HttpPost("tickets/changestatus/{ticketId}/{status}")]
         public async Task<IActionResult> ChangeStatus(int ticketId, int status)
         {
 
@@ -234,7 +234,7 @@ namespace Tickets.TicketsMicroservice.Controllers
         /// <param name="ticketId">El id de la incidencia a asignar</param>
         /// <param name="userId">el id del usuario</param>
         /// <returns></returns>
-        [HttpPut("tickets/asign/{ticketId}/{userId}")]
+        [HttpPost("tickets/asign/{ticketId}/{userId}")]
         public async Task<IActionResult> AsignTicket(int ticketId, int userId)
         {
 
