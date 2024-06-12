@@ -79,6 +79,42 @@ namespace Tickets.TicketsMicroservice.Translations {
         }
         
         /// <summary>
+        ///   Busca una cadena traducida similar a Couldn&apos;t create ticket.
+        /// </summary>
+        public static string Error_create_ticket {
+            get {
+                return ResourceManager.GetString("Error_create_ticket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Busca una cadena traducida similar a The {0} field couldn&apos;t be filtered by {1}.
+        /// </summary>
+        public static string Error_filter {
+            get {
+                return ResourceManager.GetString("Error_filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Busca una cadena traducida similar a Couldn&apos;t obtain the filtered tickets.
+        /// </summary>
+        public static string Error_ticket_filter {
+            get {
+                return ResourceManager.GetString("Error_ticket_filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Busca una cadena traducida similar a Error updating tickets.
+        /// </summary>
+        public static string Error_update {
+            get {
+                return ResourceManager.GetString("Error_update", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Busca una cadena traducida similar a The ticket is already assigned to a technician.
         /// </summary>
         public static string Ticket_already_assigned {

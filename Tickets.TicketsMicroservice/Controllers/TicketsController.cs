@@ -1,13 +1,9 @@
 ﻿using Common.Dtos;
 using Common.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
-using System.Text;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
 using Tickets.TicketsMicroservice.Models.Dtos.FilterDto;
 using Tickets.TicketsMicroservice.Models.Dtos.ResponseDto;
-using Tickets.TicketsMicroservice.Models.Entities;
 
 namespace Tickets.TicketsMicroservice.Controllers
 {
@@ -183,7 +179,7 @@ namespace Tickets.TicketsMicroservice.Controllers
                 }
                 else
                 {
-                    return Problem("Error updating user.");
+                    return Problem(Translations.Translation_Tickets.Error_update);
                 }
             }
             catch (Exception e)

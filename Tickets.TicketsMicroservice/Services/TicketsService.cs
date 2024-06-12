@@ -1,11 +1,9 @@
 ﻿using Common.Utilities;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Mail;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
 using Tickets.TicketsMicroservice.Models.Entities;
 using Tickets.TicketsMicroservice.Models.UnitsOfWork;
 using MailKit.Security;
-using MailKit.Net.Smtp;
 using MimeKit;
 using Tickets.TicketsMicroservice.Translations;
 using Tickets.TicketsMicroservice.Models.Dtos.ResponseDto;
@@ -13,8 +11,6 @@ using Tickets.TicketsMicroservice.Models.Dtos.FilterDto;
 using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Microsoft.IdentityModel.Tokens;
 using Attachment = Tickets.TicketsMicroservice.Models.Entities.Attachment;
-using System.Text;
-using System.Security.Cryptography;
 using Tickets.TicketsMicroservice.Utilities;
 
 namespace Tickets.TicketsMicroservice.Services
@@ -278,7 +274,7 @@ namespace Tickets.TicketsMicroservice.Services
                 else
                 {
                     response.Id = ticket.Id;
-                    response.Errors = new List<string> { "Couldn't create ticket" };
+                    response.Errors = new List<string> { Translation_Tickets.Error_create_ticket };
                 }
                 return response;
             }
@@ -311,7 +307,7 @@ namespace Tickets.TicketsMicroservice.Services
                 else
                 {
                     response.Id = ticketId;
-                    response.Errors = new List<string> { "Ticket not found" };
+                    response.Errors = new List<string> { Translation_Tickets.Ticket_not_found };
                 }
                 return response;
             }
@@ -403,7 +399,7 @@ namespace Tickets.TicketsMicroservice.Services
         {
             try
             {
-                var tickets = await _unitOfWork.TicketsRepository.GetAll().Where(t => t.Status != Status.FINISHED).ToListAsync();
+                var tickets = await _unitOfWork.TicketsRepository.GetAll(t => t.Status != Status.FINISHED).ToListAsync();
                 Console.WriteLine(tickets.Count);
                 List<TicketDto> result = tickets.Select(t => Extensions.ConvertModel(t, new TicketDto())).ToList();
                 return result;
@@ -443,11 +439,11 @@ namespace Tickets.TicketsMicroservice.Services
                 // Filtrar por fecha
                 var byStartDateQuery = filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1))
                     ? _unitOfWork.TicketUserRepository.GetAll()
-                    : _unitOfWork.TicketUserRepository.GetAll().Where(ticket => ticket.Timestamp <= filter.End);
+                    : _unitOfWork.TicketUserRepository.GetAll(ticket => ticket.Timestamp <= filter.End);
 
                 var byEndDateQuery = filter.Start.Equals(new DateTime(1900, 1, 1)) && filter.End.Equals(new DateTime(3000, 1, 1))
                     ? _unitOfWork.TicketUserRepository.GetAll()
-                    : _unitOfWork.TicketUserRepository.GetAll().Where(ticket => ticket.Timestamp >= filter.Start);
+                    : _unitOfWork.TicketUserRepository.GetAll(ticket => ticket.Timestamp >= filter.Start);
 
                 // Filtrar por texto introducido
                 var bySearchStringQuery = string.IsNullOrEmpty(filter.SearchString)
@@ -475,7 +471,7 @@ namespace Tickets.TicketsMicroservice.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo las incidencias filtradas");
+                _logger.LogError(ex, Translation_Tickets.Error_ticket_filter);
                 throw;
             }
         }
@@ -489,7 +485,7 @@ namespace Tickets.TicketsMicroservice.Services
         {
             try
             {
-                var tickets = _unitOfWork.TicketsRepository.GetAll().Where(ticket => ticket.UserId == userId).ToList();
+                var tickets = _unitOfWork.TicketsRepository.GetAll(ticket => ticket.UserId == userId).ToList();
                 return tickets;
             }
             catch (Exception e)
@@ -508,7 +504,7 @@ namespace Tickets.TicketsMicroservice.Services
         {
             try
             {
-                var tickets = _unitOfWork.TicketUserRepository.GetAll().Where(ticket => ticket.UserId == userId).Distinct().ToList();
+                var tickets = _unitOfWork.TicketUserRepository.GetAll(ticket => ticket.UserId == userId).Distinct().ToList();
                 return tickets;
             }
             catch (Exception e)
@@ -545,7 +541,7 @@ namespace Tickets.TicketsMicroservice.Services
                 else
                 {
                     response.Id = ticketId;
-                    response.Errors = new List<string> { "Ticket not found" };
+                    response.Errors = new List<string> { Translation_Tickets.Ticket_not_found };
                 }
                 return response;
             }

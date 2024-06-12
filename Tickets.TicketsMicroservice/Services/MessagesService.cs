@@ -3,7 +3,6 @@ using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MimeKit;
-using System.Net.Sockets;
 using Tickets.TicketsMicroservice.Models.Dtos.CreateDto;
 using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Entities;
@@ -117,7 +116,7 @@ namespace Tickets.TicketsMicroservice.Services
                 else
                 {
                     response.Id = message.Id;
-                    response.Errors = new List<string> { "Couldn't create message" };
+                    response.Errors = new List<string> { Translation_Messages.Error_create_message };
                 }
 
                 Ticket ticket = await _unitOfWork.TicketsRepository.Get(createMessage.TicketId);
@@ -192,7 +191,7 @@ namespace Tickets.TicketsMicroservice.Services
                 else
                 {
                     response.Id = id;
-                    response.Errors = new List<string> { "Message not found" };
+                    response.Errors = new List<string> { Translation_Messages.Message_not_found };
                 }
                 return response;
             }
@@ -213,7 +212,7 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var message = Extensions.ConvertModel(_unitOfWork.MessagesRepository.GetFirst(g => g.Id.Equals(id)), new MessageDto());
-                var attachments = await _unitOfWork.AttachmentsRepository.GetAll().Where(a => a.MessageId == message.Id).ToListAsync();
+                var attachments = await _unitOfWork.AttachmentsRepository.GetAll(a => a.MessageId == message.Id).ToListAsync();
                 foreach (var attachment in attachments)
                 {
                     message.AttachmentPaths.Add(Extensions.ConvertModel(attachment, new AttachmentDto()));
@@ -240,7 +239,7 @@ namespace Tickets.TicketsMicroservice.Services
                 foreach (var message in messages)
                 {
                     result.Add(Extensions.ConvertModel(message, new MessageDto()));
-                    var attachments = await _unitOfWork.AttachmentsRepository.GetAll().Where(attachment => attachment.MessageId == message.Id).ToListAsync();
+                    var attachments = await _unitOfWork.AttachmentsRepository.GetAll(attachment => attachment.MessageId == message.Id).ToListAsync();
                     foreach (var attachment in attachments)
                     {
                         result.Last().AttachmentPaths.Add(Extensions.ConvertModel(attachment, new AttachmentDto()));
@@ -264,7 +263,7 @@ namespace Tickets.TicketsMicroservice.Services
         {
             try
             {
-                var messages = await _unitOfWork.MessagesRepository.GetAll().Where(message => message.TicketId == ticketId).ToListAsync();
+                var messages = await _unitOfWork.MessagesRepository.GetAll(message => message.TicketId == ticketId).ToListAsync();
                 var result = new List<MessageDto?>();
                 if (messages != null)
                 {
@@ -272,7 +271,7 @@ namespace Tickets.TicketsMicroservice.Services
                     {
                         result.Insert(0, Extensions.ConvertModel(message, new MessageDto()));
                             
-                        message.AttachmentPaths = await _unitOfWork.AttachmentsRepository.GetAll().Where(a => a.MessageId == message.Id).ToListAsync();
+                        message.AttachmentPaths = await _unitOfWork.AttachmentsRepository.GetAll(a => a.MessageId == message.Id).ToListAsync();
                         if (!message.AttachmentPaths.IsNullOrEmpty())
                         {
                             foreach (var attachment in message.AttachmentPaths)
@@ -330,7 +329,7 @@ namespace Tickets.TicketsMicroservice.Services
                 else
                 {
                     response.Id = messageId;
-                    response.Errors = new List<string> { "Message not found" };
+                    response.Errors = new List<string> { Translation_Messages.Message_not_found };
                 }
                 return response;
             }
@@ -352,7 +351,7 @@ namespace Tickets.TicketsMicroservice.Services
             {
                 var response = new CreateEditRemoveResponseDto();
 
-                var messages = _unitOfWork.MessagesRepository.GetAll().Where(message => message.TicketId == ticketId);
+                var messages = _unitOfWork.MessagesRepository.GetAll(message => message.TicketId == ticketId);
 
                 if (messages != null)
                 {
@@ -373,7 +372,7 @@ namespace Tickets.TicketsMicroservice.Services
                 else
                 {
                     response.Id = ticketId;
-                    response.Errors = new List<string> { "Messages not found" };
+                    response.Errors = new List<string> { Translation_Messages.Message_not_found };
                 }
                 return response;
             }

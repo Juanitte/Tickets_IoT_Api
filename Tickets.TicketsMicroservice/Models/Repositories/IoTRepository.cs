@@ -275,7 +275,7 @@ namespace Tickets.TicketsMicroservice.Models.Repositories
                             return _dbSet.Where(PropertyContains<T>(propertyInfo, stringValue)).ToList()?.AsQueryable();
                     }
                 }
-                throw new ArgumentException(string.Format("El campo {0} no posee el tipo de filtrado {1}", propertyName, filterType));
+                throw new ArgumentException(string.Format(Translations.Translation_Tickets.Error_filter, propertyName, filterType));
             
         }
 

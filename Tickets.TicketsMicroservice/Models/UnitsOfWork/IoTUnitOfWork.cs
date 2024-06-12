@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Tickets.TicketsMicroservice.Models.Context;
+﻿using Tickets.TicketsMicroservice.Models.Context;
 using Tickets.TicketsMicroservice.Models.Dtos.EntityDto;
 using Tickets.TicketsMicroservice.Models.Entities;
 using Tickets.TicketsMicroservice.Models.Repositories;
