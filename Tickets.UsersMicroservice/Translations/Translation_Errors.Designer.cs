@@ -61,6 +61,15 @@ namespace Tickets.UsersMicroservice.Translations {
         }
         
         /// <summary>
+        ///   Busca una cadena traducida similar a Error al actualizar el usuario.
+        /// </summary>
+        public static string Error_user_update {
+            get {
+                return ResourceManager.GetString("Error_user_update", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Busca una cadena traducida similar a Invalid model state.
         /// </summary>
         public static string InvalidModelState {

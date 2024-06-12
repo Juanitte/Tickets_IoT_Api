@@ -170,7 +170,7 @@ namespace Tickets.TicketsMicroservice.Services
                 }
                 else
                 {
-                    response.Errors = new List<string> { "Attachment not found" };
+                    response.Errors = new List<string> { Translations.Translation_Messages.Attachment_not_found };
                 }
                 response.Id = id;
                 return response;

@@ -123,6 +123,18 @@
   <data name="Email_title" xml:space="preserve">
     <value>IoT seguimiento de incidencia.</value>
   </data>
+  <data name="Error_create_ticket" xml:space="preserve">
+    <value>No se pudo crear la incidencia</value>
+  </data>
+  <data name="Error_filter" xml:space="preserve">
+    <value>El campo {0} no posee el tipo de filtrado {1}</value>
+  </data>
+  <data name="Error_ticket_filter" xml:space="preserve">
+    <value>Error al obtener las incidencias filtradas</value>
+  </data>
+  <data name="Error_update" xml:space="preserve">
+    <value>Error al actualizar la incidencia</value>
+  </data>
   <data name="Ticket_already_assigned" xml:space="preserve">
     <value>La incidencia ya está asignada a un técnico</value>
   </data>

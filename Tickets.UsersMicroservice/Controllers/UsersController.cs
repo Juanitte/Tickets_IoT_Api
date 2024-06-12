@@ -172,7 +172,7 @@ namespace Tickets.UsersMicroservice.Controllers
                 }
                 else
                 {
-                    return Problem("Error updating user.");
+                    return Problem(Translation_Errors.Error_user_update);
                 }
             }
             catch (Exception e)

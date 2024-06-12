@@ -61,6 +61,15 @@ namespace Tickets.TicketsMicroservice.Translations {
         }
         
         /// <summary>
+        ///   Busca una cadena traducida similar a Attachment not found.
+        /// </summary>
+        public static string Attachment_not_found {
+            get {
+                return ResourceManager.GetString("Attachment_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Busca una cadena traducida similar a A technician just sent a message to the following ticket: .
         /// </summary>
         public static string Email_body {

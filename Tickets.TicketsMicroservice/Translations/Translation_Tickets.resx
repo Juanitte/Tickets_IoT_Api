@@ -123,6 +123,18 @@
   <data name="Email_title" xml:space="preserve">
     <value>IoT ticket tracking</value>
   </data>
+  <data name="Error_create_ticket" xml:space="preserve">
+    <value>Couldn't create ticket</value>
+  </data>
+  <data name="Error_filter" xml:space="preserve">
+    <value>The {0} field couldn't be filtered by {1}</value>
+  </data>
+  <data name="Error_ticket_filter" xml:space="preserve">
+    <value>Couldn't obtain the filtered tickets</value>
+  </data>
+  <data name="Error_update" xml:space="preserve">
+    <value>Error updating tickets</value>
+  </data>
   <data name="Ticket_already_assigned" xml:space="preserve">
     <value>The ticket is already assigned to a technician</value>
   </data>
