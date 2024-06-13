@@ -400,7 +400,6 @@ namespace Tickets.TicketsMicroservice.Services
             try
             {
                 var tickets = await _unitOfWork.TicketsRepository.GetAll(t => t.Status != Status.FINISHED).ToListAsync();
-                Console.WriteLine(tickets.Count);
                 List<TicketDto> result = tickets.Select(t => Extensions.ConvertModel(t, new TicketDto())).ToList();
                 return result;
             }
